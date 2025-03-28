@@ -1,3 +1,18 @@
 uc_catalog: felixflory
 uc_schema: databricks_genai_hackathon
 raw_data_volume: raw_data
+vector_search_endpoint_name: one-env-shared-endpoint-1
+embedding_endpoint_name: databricks-bge-large-en
+
+vector_search_attributes:
+  sec_rag_docs_pages:
+    # endpoint_name: str # =vector_search_endpoint_name,
+    # index_name: str # =projectConfig.index_sec_rag_docs_pages,
+    # source_table_name: str # =projectConfig.table_sec_rag_docs_pages,
+    # vector_search_endpoint_name: one-env-shared-endpoint-1
+    # embedding_endpoint_name: databricks-bge-large-en
+    primary_key: chunk_id
+    embedding_source_column: content_chunked
+    # embedding_model_endpoint_name: str # =embedding_endpoint_name,
+    # pipeline_type: str # ="TRIGGERED",
+    # verbose: bool # =True
