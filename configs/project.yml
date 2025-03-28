@@ -5,7 +5,7 @@ vector_search_endpoint_name: one-env-shared-endpoint-1
 embedding_endpoint_name: databricks-bge-large-en
 
 vector_search_attributes:
-  sec_rag_docs_pages:
+  sec_rag_docs_pages: # use the table name (not fully qualified) and the optional values will be imputed and validated
     # endpoint_name: 
     # index_name: 
     # source_table_name: 
