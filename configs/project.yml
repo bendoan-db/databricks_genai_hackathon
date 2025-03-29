@@ -3,7 +3,13 @@ uc_schema: databricks_genai_hackathon
 raw_data_volume: raw_data
 vector_search_endpoint_name: one-env-shared-endpoint-1
 embedding_model_endpoint_name: databricks-bge-large-en
+secret_scope: felix-flory
 genie_space_id: 01f00c360aa7147aa93f081d65b4c8e5
+
+external_endpoint_names: 
+  - databricks-claude-3-7-sonnet
+  # - ASK-BEFORE-USE-fflory-gpt-4o
+  # - ASK-BEFORE-USE-fflory-claude-3-7
 
 vector_search_attributes:
   sec_rag_docs_pages: # use the table name (not fully qualified) and the optional values will be imputed and validated

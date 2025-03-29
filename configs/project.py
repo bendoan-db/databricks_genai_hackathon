@@ -42,7 +42,9 @@ class GenieTableAttributes(GenieModel):
 
 class Environment(GenieModel, VectorSearchModel):
 
+    secret_scope: str
     genie_space_id: str
+    external_endpoint_names: list[str]
 
 class ProjectConfig(Environment):
 
@@ -87,34 +89,17 @@ class ProjectConfig(Environment):
                 table.local_path = f"/Volumes/{table.uc_catalog}/{table.uc_schema}/{table.raw_data_volume}/{table.name}.snappy.parquet" 
         return model
 
-    
-    # vector_search_attributes: Dict[str, Dict[str, Any]]  # use Dict[str, Any] to allow pre-validation
-    # use the table name as the key for the vector search attributes
-    # vector_search_attributes:
-    #   <table_name1>:
-    #     primary_key: <primary_key_column>
-    #     embedding_source_column: <content_column>
-    #   <table_name2>:
-    #     primary_key: <primary_key_column>
-    #     embedding_source_column: <content_column>
-    
-    # @field_validator("vector_search_attributes", mode="before")
-    # def fill_vector_search_attributes(cls, v, info):
-    #     uc_catalog = info.data.get("uc_catalog")
-    #     uc_schema = info.data.get("uc_schema")
-    #     vs_endpoint = info.data.get("vector_search_endpoint_name")
-    #     emb_endpoint = info.data.get("embedding_endpoint_name")
-    #     for key, nested in v.items():
-    #         if not isinstance(nested, dict):
-    #             continue
-    #         if "endpoint_name" not in nested:
-    #             nested["endpoint_name"] = vs_endpoint
-    #         if "index_name" not in nested:
-    #             nested["index_name"] = f"{uc_catalog}.{uc_schema}.{key}_index"
-    #         if "source_table_name" not in nested:
-    #             nested["source_table_name"] = f"{uc_catalog}.{uc_schema}.{key}"
-    #         if "embedding_model_endpoint_name" not in nested:
-    #             nested["embedding_model_endpoint_name"] = emb_endpoint
-    #         if "pipeline_type" not in nested:
-    #             nested["pipeline_type"] = "TRIGGERED"
-    #     return v
+
+if __name__ == "__main__":
+    # %pip install -q --upgrade pydantic
+    # %restart_python
+    import sys, os
+    sys.path.append(os.path.abspath('..'))
+    from configs.project import ProjectConfig
+    import yaml
+
+    with open("../configs/project.yml", "r") as file:
+        data = yaml.safe_load(file)
+
+    projectConfig = ProjectConfig(**data)
+    projectConfig.model_dump()
