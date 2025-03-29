@@ -5,29 +5,28 @@ class UnityCatalog(BaseModel):
     uc_catalog: str
     uc_schema: str
 
-class UCVolume(UnityCatalog):
+class GenieModel(UnityCatalog):
     raw_data_volume: str
 
-class Environment(UCVolume):
-    # uc_catalog: str
-    # uc_schema: str
-    # raw_data_volume: str
+class VectorSearchModel(UnityCatalog):
     vector_search_endpoint_name: str
-    embedding_endpoint_name: str
-    genie_space_id: str
+    embedding_model_endpoint_name: str
 
+class VectorSearchIndexAttributes(VectorSearchModel):
+    # Override inherited required fields to be optional here.
+    uc_catalog: Optional[str] = None
+    uc_schema: Optional[str] = None
+    vector_search_endpoint_name: Optional[str] = None
+    embedding_model_endpoint_name: Optional[str] = None
+    
+    endpoint_name: Optional[str] = None
+    index_name: Optional[str] = None
+    source_table_name: Optional[str] = None
+    primary_key: str
+    embedding_source_column: str
+    pipeline_type: Optional[str] = None
 
-# class VectorSearchIndexAttributes(Environment):
-#     endpoint_name: Optional[str]
-#     index_name: Optional[str]
-#     source_table_name: Optional[str]
-#     primary_key: str
-#     embedding_source_column: str
-#     embedding_model_endpoint_name: Optional[str]
-#     pipeline_type: Optional[str]
-
-class GenieTableAttributes(UCVolume):
-
+class GenieTableAttributes(GenieModel):
     # Override inherited required fields to be optional here.
     uc_catalog: Optional[str] = None
     uc_schema: Optional[str] = None
@@ -41,7 +40,32 @@ class GenieTableAttributes(UCVolume):
     fqn: Optional[str] = None
     local_path: Optional[str] = None
 
+class Environment(GenieModel, VectorSearchModel):
+
+    genie_space_id: str
+
 class ProjectConfig(Environment):
+
+    vector_search_attributes: Dict[str, VectorSearchIndexAttributes]
+
+    @model_validator(mode="after")
+    def impute_vector_search_attributes(cls, model: "ProjectConfig") -> "ProjectConfig":
+        for key, index in model.vector_search_attributes.items():
+            if index.uc_catalog is None:
+                index.uc_catalog = model.uc_catalog
+            if index.uc_schema is None:
+                index.uc_schema = model.uc_schema
+            if index.endpoint_name is None:
+                index.endpoint_name = model.vector_search_endpoint_name
+            if index.index_name is None:
+                index.index_name = f"{model.uc_catalog}.{model.uc_schema}.{key}_index"
+            if index.source_table_name is None:
+                index.source_table_name = f"{model.uc_catalog}.{model.uc_schema}.{key}"
+            if index.embedding_model_endpoint_name is None:
+                index.embedding_model_endpoint_name = model.embedding_model_endpoint_name
+            if index.pipeline_type is None:
+                index.pipeline_type = "TRIGGERED"
+        return model
 
     genie_tables: Dict[str, GenieTableAttributes]
 
