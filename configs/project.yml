@@ -15,3 +15,9 @@ vector_search_attributes:
     embedding_source_column: content_chunked
     # embedding_model_endpoint_name:  
     # pipeline_type: 
+
+genie_tables_attributes:
+  balance_sheet:
+    url: "https://raw.githubusercontent.com/fflory/databricks_genai_hackathon/main/data/balance_sheet.parquet"
+  income_statement:
+    url: "https://raw.githubusercontent.com/fflory/databricks_genai_hackathon/main/data/income_statement.parquet"
