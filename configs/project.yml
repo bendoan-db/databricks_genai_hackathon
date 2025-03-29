@@ -3,21 +3,24 @@ uc_schema: databricks_genai_hackathon
 raw_data_volume: raw_data
 vector_search_endpoint_name: one-env-shared-endpoint-1
 embedding_endpoint_name: databricks-bge-large-en
+genie_space_id: 01f00c360aa7147aa93f081d65b4c8e5
 
-vector_search_attributes:
-  sec_rag_docs_pages: # use the table name (not fully qualified) and the optional values will be imputed and validated
-    # endpoint_name: 
-    # index_name: 
-    # source_table_name: 
-    # vector_search_endpoint_name: 
-    # embedding_endpoint_name: 
-    primary_key: chunk_id
-    embedding_source_column: content_chunked
-    # embedding_model_endpoint_name:  
-    # pipeline_type: 
+# vector_search_attributes:
+#   sec_rag_docs_pages: # use the table name (not fully qualified) and the optional values will be imputed and validated
+#     # endpoint_name: 
+#     # index_name: 
+#     # source_table_name: 
+#     # vector_search_endpoint_name: 
+#     # embedding_endpoint_name: 
+#     primary_key: chunk_id
+#     embedding_source_column: content_chunked
+#     # embedding_model_endpoint_name:  
+#     # pipeline_type: 
 
-genie_tables_attributes:
+genie_tables:
   balance_sheet:
+    # name: balance_sheet
     url: "https://raw.githubusercontent.com/fflory/databricks_genai_hackathon/main/data/balance_sheet.parquet"
   income_statement:
+    # name: income_statement
     url: "https://raw.githubusercontent.com/fflory/databricks_genai_hackathon/main/data/income_statement.parquet"
