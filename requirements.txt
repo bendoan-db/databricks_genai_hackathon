@@ -1,3 +1,4 @@
 # mlflow
 # databricks-vectorsearch
 # databricks
+pydantic==2.11.1
