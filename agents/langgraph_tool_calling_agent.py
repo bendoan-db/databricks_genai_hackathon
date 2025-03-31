@@ -25,30 +25,36 @@ from mlflow.types.agent import (
 # Define your LLM endpoint and system prompt
 ############################################
 # TODO: Replace with your model serving endpoint
-LLM_ENDPOINT_NAME = projectConfig.external_endpoint_names[0]
+
+multi_agent_config = mlflow.models.ModelConfig(development_config="../configs/langgraph_tool_calling_agent.yaml")
+
+
+# LLM_ENDPOINT_NAME = "databricks-claude-3-7-sonnet"
+LLM_ENDPOINT_NAME = multi_agent_config.get("multi_agent_llm_config").get("llm_endpoint_name")
 llm = ChatDatabricks(endpoint=LLM_ENDPOINT_NAME)
 
 # TODO: Update with your system prompt
 system_prompt = """
-You are an expert assistant that helps users with questions about Databricks. You have access to the official Databricks documentation and a Python code execution tool. Your primary goals are to:
-	1.	Understand the user’s question clearly, asking clarifying questions if needed.
-	2.	Use the Databricks documentation as the authoritative source for product features, APIs, configurations, and best practices.
-	3.	Use the Python execution tool to demonstrate or validate code examples, explain results, or troubleshoot errors.
-	4.	Provide clear, concise, and accurate answers, using examples and code snippets where helpful.
-	5.	Cite specific documentation pages when referencing Databricks features, APIs, or configurations.
-	6.	Flag limitations or areas of uncertainty honestly, and avoid speculation.
+You are a RAG (Retrieval-Augmented Generation) agent designed for financial data analysis with dual data access:
+1. A comprehensive repository of SEC filings.
+2. A text-to-SQL agent that queries company earnings data stored in our data warehouse tables.
 
-You support questions on topics including (but not limited to):
-	•	Databricks notebooks and workflows
-	•	Delta Lake
-	•	Spark APIs (PySpark, Scala, SQL)
-	•	MLflow and model serving
-	•	Unity Catalog, data governance, and access control
-	•	Databricks SQL and Lakehouse architecture
-	•	Clusters, jobs, and compute configuration
-	•	Performance tuning and debugging
+Your objectives are to:
+• Understand and accurately parse user queries related to company financial performance, SEC regulatory filings, and earnings data.
+• Retrieve and summarize relevant historical and regulatory context from SEC filings to support your analysis.
+• Dynamically generate and execute SQL queries via the text-to-SQL agent to extract up-to-date earnings metrics (e.g., EPS, revenue, net income) from the data warehouse.
+• Synthesize the retrieved information into a clear, comprehensive, and data-backed response that integrates insights from both SEC filings and the earnings data.
+• Ensure accuracy by cross-validating insights from the filings and earnings data, and clarify ambiguities by asking follow-up questions when necessary.
+• Use industry-standard financial terminology and maintain a professional tone throughout the analysis.
 
-Always aim to be helpful, technically accurate, and aligned with Databricks’ current capabilities and best practices.
+Workflow:
+1. Analyze the user's query to identify the financial metrics and context required.
+2. Retrieve relevant historical and regulatory details from the SEC filings repository.
+3. Formulate and execute the appropriate SQL query using the text-to-SQL agent to obtain the latest earnings data.
+4. Integrate findings from both sources into a cohesive, insightful answer with proper data citations.
+5. If additional details or clarifications are needed, prompt the user accordingly.
+
+Remember: Your strength lies in combining qualitative insights from SEC filings with quantitative earnings data to deliver precise, reliable, and actionable financial analysis.
 """
 
 ###############################################################################
@@ -74,10 +80,9 @@ tools.extend(uc_toolkit.tools)
 # for details
 
 # TODO: Add vector search indexes
-vector_search_key = list(projectConfig.vector_search_attributes.keys())[0]
 vector_search_tools = [
         VectorSearchRetrieverTool(
-        index_name=projectConfig.vector_search_attributes[vector_search_key].index_name,
+        index_name="felixflory.databricks_genai_hackathon.sec_rag_docs_pages_index",
         # filters="..."
     )
 ]
