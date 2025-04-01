@@ -5,6 +5,8 @@ vector_search_endpoint_name: one-env-shared-endpoint-1
 embedding_model_endpoint_name: databricks-bge-large-en
 secret_scope: felix-flory
 genie_space_id: 01f00c360aa7147aa93f081d65b4c8e5
+mlflow_experiment_base_path: 'Users/felix.flory@databricks.com/mlflow_experiments'
+mlflow_experiment_name: databricks_genai_hackathon
 
 external_endpoint_names: 
   - databricks-claude-3-7-sonnet
