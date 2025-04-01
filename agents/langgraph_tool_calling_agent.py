@@ -25,10 +25,7 @@ from mlflow.types.agent import (
 # Define your LLM endpoint and system prompt
 ############################################
 # TODO: Replace with your model serving endpoint
-
 multi_agent_config = mlflow.models.ModelConfig(development_config="../configs/langgraph_tool_calling_agent.yaml")
-
-
 # LLM_ENDPOINT_NAME = "databricks-claude-3-7-sonnet"
 LLM_ENDPOINT_NAME = multi_agent_config.get("multi_agent_llm_config").get("llm_endpoint_name")
 llm = ChatDatabricks(endpoint=LLM_ENDPOINT_NAME)
@@ -82,7 +79,7 @@ tools.extend(uc_toolkit.tools)
 # TODO: Add vector search indexes
 vector_search_tools = [
         VectorSearchRetrieverTool(
-        index_name="felixflory.databricks_genai_hackathon.sec_rag_docs_pages_index",
+        index_name=multi_agent_config.get("retriever_config").get("vector_search_index"),
         # filters="..."
     )
 ]

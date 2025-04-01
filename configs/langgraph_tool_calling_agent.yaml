@@ -3,3 +3,6 @@ multi_agent_llm_config:
   # llm_parameters:
   #   max_tokens: 2000
   #   temperature: 0.01
+
+retriever_config:
+  vector_search_index: "felixflory.databricks_genai_hackathon.sec_rag_docs_pages_index"
