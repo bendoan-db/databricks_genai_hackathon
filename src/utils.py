@@ -1,148 +1,72 @@
 # Databricks notebook source
-# MAGIC %run ./utils/init
+# MAGIC %pip install -q mlflow==2.18.0 databricks-vectorsearch==0.40 databricks-sdk==0.38.0 langchain==0.3.0 langchain-community==0.3.0 mlflow[databricks] databricks-agents==0.11.0 langchain_databricks==0.1.1 langgraph==0.2.53 databricks-langchain beautifulsoup4
+# MAGIC dbutils.library.restartPython()
 
 # COMMAND ----------
 
-# MAGIC %load_ext autoreload
-# MAGIC %autoreload 2
+import pytz
+from datetime import datetime
+#TODO:
+####CHANGE ME
+
+#Timezone that you want to use for mlflow logging
+timezone_for_logging = "US/Central"
+logging_timezone = pytz.timezone(timezone_for_logging)
+
+#catalog to use for creating data tables and keeping other resources
+#You need necessary privileges to create, delete tables, functions, and models
+catalog = "felixflory"
+
+#schema to use for creating data tables and keeping other resources
+#You need necessary privileges to create, delete tables, functions, and model
+schema = "covid_trials" # ""
+
+#The Volume folder where data file will be copied to
+data_folder = "data"
+
+#the covid data file
+covid_data_file_name = "COVID clinical trials.csv"
+
+#covid cleaned data table name
+covid_data_table_name = "covid_data"
+
+#MLflow experiment tag
+experiment_tag = f"covid_trials"
 
 # COMMAND ----------
 
-import os
-
-os.environ["BRAVE_API_KEY"] = dbutils.secrets.get("felix-flory","BRAVE_API_KEY")
-
-os.environ["VECTOR_SEARCH_PAT"] = dbutils.secrets.get("felix-flory","DBPAT")
-# os.environ["DATABRICKS_TOKEN"] = dbutils.secrets.get("felix-flory","DBPAT")
-os.environ["VECTOR_SEARCH_CLIENT_ID"] = dbutils.secrets.get("felix-flory","SERVICE_PRINCIPAL_ID")
-os.environ["VECTOR_SEARCH_CLIENT_SECRET"] = dbutils.secrets.get("felix-flory","SERVICE_PRINCIPAL_SECRET")
-os.environ["DATABRICKS_HOST"] = db_host_url
-
-# os.environ["VECTOR_SEARCH_PAT"] = dbutils.secrets.get("multi_agent","pat")
-#os.environ["VECTOR_SEARCH_CLIENT_ID"] = dbutils.secrets.get("multi_agent","vector_search_client_id")
-#os.environ["VECTOR_SEARCH_CLIENT_SECRET"] = dbutils.secrets.get("multi_agent","vector_search_client_secret")
-# os.environ["WORKSPACE_URL"] = db_host_url
-
-
-from agents.multiagent import graph_with_parser, multi_agent_config
+current_path = dbutils.notebook.entry_point.getDbutils().notebook().getContext().notebookPath().get()
+project_root_path = "/".join(current_path.split("/")[1:-2])
 
 # COMMAND ----------
 
-from IPython.display import Image, display
-from langchain_core.runnables.graph import CurveStyle, MermaidDrawMethod, NodeStyles
-
-display(
-    Image(
-        graph_with_parser.get_graph().draw_mermaid_png(
-            draw_method=MermaidDrawMethod.API,
-        )
-    )
-)
+db_host_name = spark.conf.get('spark.databricks.workspaceUrl')
+db_host_url = f"https://{db_host_name}"
+db_token = dbutils.notebook.entry_point.getDbutils().notebook().getContext().apiToken().getOrElse(None)
 
 # COMMAND ----------
 
-graph_with_parser.invoke({"messages":[{"content": "How many florida can fit iin India" , "role": "user"}] })
+user_email = dbutils.notebook.entry_point.getDbutils().notebook().getContext().userName().get()
+user_name = user_email.split('@')[0].replace('.','_')
+user_prefix = f"{user_name[0:4]}{str(len(user_name)).rjust(3, '0')}"
 
 # COMMAND ----------
 
-graph_with_parser.invoke({"messages":[{"content": "What are covid studies realted to pregnancy?" , "role": "user"}] })
+#Create mlflow experiment
+import mlflow
+from databricks.sdk import WorkspaceClient
+
+mlflow_experiment_base_path = f"Users/{user_email}/mlflow_experiments"
+
+def set_mlflow_experiment(experiment_tag):
+    w = WorkspaceClient()
+    w.workspace.mkdirs(f"/Workspace/{mlflow_experiment_base_path}")
+    experiment_path = f"/{mlflow_experiment_base_path}/{experiment_tag}_{user_prefix}"
+    return mlflow.set_experiment(experiment_path)
 
 # COMMAND ----------
 
-graph_with_parser.invoke({"messages":[{"content": "How many COVID trials are in Recruiting status?" , "role": "user"}] })
-
-# COMMAND ----------
-
-#get the resources required by the chain
-multi_agent_config = mlflow.models.ModelConfig(development_config="config/multi_agent_config.yaml")
-
-multi_agent_llm_config = multi_agent_config.get("multi_agent_llm_config")
-genie_config = multi_agent_config.get("genie_agent_config")
-retriever_config=multi_agent_config.get("retriever_config")
-rag_agent_config = multi_agent_config.get("rag_agent_llm_config")
-
-multiagent_llm_endpoint=multi_agent_llm_config.get("llm_endpoint_name")
-genie_space_id =  genie_config.get("genie_space_id")
-math_tool_model_endpoint =  multi_agent_config.get("math_tool").get("llm_endpoint_name")
-vs_index_name=retriever_config.get("vector_search_index")
-rag_agent_llm_endpoint = rag_agent_config.get("llm_endpoint_name")
-
-print("########### Databricks Resources:")
-print(f"multiagent_llm_endpoint:{multiagent_llm_endpoint}")
-print(f"genie_space_id:{genie_space_id}")
-print(f"math_tool_model_endpoint:{math_tool_model_endpoint}")
-print(f"vs_index_name:{vs_index_name}")
-print(f"rag_agent_llm_endpoint:{rag_agent_llm_endpoint}")
-
-# COMMAND ----------
-
-import os
-from mlflow.models.resources import (
-    DatabricksServingEndpoint,
-    DatabricksVectorSearchIndex,
-    DatabricksGenieSpace
-)
-
-set_mlflow_experiment("covid19_agent")
-
-with mlflow.start_run(run_name="multi_agent"):
-  logged_chain_info = mlflow.langchain.log_model(
-          #Note: In classical ML, MLflow works by serializing the model object.  In generative AI, chains often include Python packages that do not serialize.  Here, we use MLflow's new code-based logging, where we saved our chain under the chain notebook and will use this code instead of trying to serialize the object.
-          lc_model=os.path.join(os.getcwd(), "agents/multiagent.py"),  # Chain code file  
-          model_config="config/multi_agent_config.yaml", 
-          artifact_path="chain", # Required by MLflow, the chain's code/config are saved in this directory
-          extra_pip_requirements=["mlflow",
-                                  "databricks-langchain",
-                                  "langchain-community",
-                                  "langgraph",
-                                  "beautifulsoup4"],
-          code_paths = ["agents" ],
-          input_example=multi_agent_config.get("input_example"),
-          example_no_conversion=True,  # Required by MLflow to use the input_example as the chain's schema     
-          # Specify resources for automatic authentication passthrough
-          resources = [
-                DatabricksServingEndpoint(endpoint_name=multiagent_llm_endpoint),
-                DatabricksServingEndpoint(endpoint_name=math_tool_model_endpoint),
-                DatabricksServingEndpoint(endpoint_name=rag_agent_llm_endpoint),
-                DatabricksVectorSearchIndex(index_name=vs_index_name),
-                DatabricksGenieSpace(genie_space_id=genie_space_id)
-          ]          
-  )
-
-# COMMAND ----------
-
-#register the model
-model_name = "multi_agent"
-uc_model_name = f"{catalog}.{schema}.{model_name}"
-mlflow.set_registry_uri("databricks-uc")
-# Register to UC
-uc_registered_model_info = mlflow.register_model(model_uri=logged_chain_info.model_uri, name=uc_model_name)
-
-# COMMAND ----------
-
-from databricks import agents
-
-api_key_env_var = multi_agent_config.get("web_search_tool").get("api_key_environment_var").upper()
-pat_environment_var = multi_agent_config.get("retriever_config").get("pat_environment_var").upper()
-client_id_environment_var = multi_agent_config.get("retriever_config").get("client_id_environment_var").upper()
-client_secret_environment_var = multi_agent_config.get("retriever_config").get("client_secret_environment_var").upper()
-workspace_url_environment_var = multi_agent_config.get("retriever_config").get("workspace_url_environment_var").upper()
-
-env_vars = {
-    api_key_env_var : dbutils.secrets.get("felix-flory","BRAVE_API_KEY"),
-    client_id_environment_var : dbutils.secrets.get("felix-flory","SERVICE_PRINCIPAL_ID"),
-    client_secret_environment_var : dbutils.secrets.get("felix-flory","SERVICE_PRINCIPAL_SECRET"),
-    workspace_url_environment_var : db_host_url
-} if "SERVICE_PRINCIPAL_ID" in [s.key for s in dbutils.secrets.list("felix-flory")] else {
-    api_key_env_var : dbutils.secrets.get("felix-flory","BRAVE_API_KEY"),
-    pat_environment_var : dbutils.secrets.get("felix-flory","DBPAT"),
-    workspace_url_environment_var : db_host_url
-}
-
-deployment_info = agents.deploy(
-    model_name=uc_model_name,
-    model_version=uc_registered_model_info.version,
-    scale_to_zero=True,
-    environment_vars=env_vars
-)
-
+print(f"Using catalog: {catalog}")
+print(f"Using schema: {schema}")
+print(f"Project root: {project_root_path}")
+print(f"MLflow Experiment Path: {mlflow_experiment_base_path}")
