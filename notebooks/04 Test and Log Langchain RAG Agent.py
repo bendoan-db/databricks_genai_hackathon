@@ -1,6 +1,15 @@
 # Databricks notebook source
-# MAGIC %pip install -q mlflow==2.18.0 databricks-vectorsearch==0.40 databricks-sdk==0.38.0 langchain==0.3.0 langchain-community==0.3.0 mlflow[databricks] databricks-agents==0.11.0 langchain_databricks==0.1.1 langgraph==0.2.53 databricks-langchain beautifulsoup4
-# MAGIC dbutils.library.restartPython()
+# %pip install -q mlflow==2.18.0 databricks-vectorsearch==0.40 databricks-sdk==0.38.0 langchain==0.3.0 langchain-community==0.3.0 mlflow[databricks] databricks-agents==0.11.0 langchain_databricks==0.1.1 langgraph==0.2.53 databricks-langchain beautifulsoup4
+%pip install -q mlflow databricks-vectorsearch langchain databricks-langchain databricks-agents
+dbutils.library.restartPython()
+
+# COMMAND ----------
+
+# MAGIC %pip list
+
+# COMMAND ----------
+
+# from databricks_langchain import ChatDatabricks
 
 # COMMAND ----------
 
@@ -8,6 +17,7 @@
 
 # COMMAND ----------
 
+import mlflow
 import sys, os
 
 sys.path.append(os.path.abspath(".."))
@@ -44,10 +54,6 @@ experiment = set_mlflow_experiment(projectConfig.mlflow_experiment_name)
 #     index_name= "users.felix_flory.covid_data_title_index" # retriever_config.get("vector_search_index"),
 # )
 
-
-# COMMAND ----------
-
-import mlflow
 
 # COMMAND ----------
 
