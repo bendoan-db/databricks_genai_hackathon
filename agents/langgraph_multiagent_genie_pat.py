@@ -9,6 +9,7 @@ from databricks_langchain import (
     DatabricksFunctionClient,
     UCFunctionToolkit,
     set_uc_function_client,
+    VectorSearchRetrieverTool,
 )
 from databricks_langchain.genie import GenieAgent
 from langchain_core.runnables import RunnableLambda
@@ -53,6 +54,8 @@ genie_agent = GenieAgent(
     client=WorkspaceClient(
         host=os.getenv("DATABRICKS_HOST") or os.getenv("DB_MODEL_SERVING_HOST_URL"),
         token=os.getenv("DATABRICKS_GENIE_PAT"),
+        # client_id     = retrieve_client_id(), # service_principal_id
+        # client_secret = retrieve_client_secret() # service_pricipal_secret
     ),
 )
 
@@ -80,8 +83,36 @@ tools = []
 uc_tool_names = ["system.ai.*"]
 uc_toolkit = UCFunctionToolkit(function_names=uc_tool_names)
 tools.extend(uc_toolkit.tools)
+
+# TODO: Add vector search indexes
+# vector_search_tools = [
+#         VectorSearchRetrieverTool(
+#         index_name=multi_agent_config.get("retriever_config").get("vector_search_index"),
+#         # filters="..."
+#     )
+# ]
+# tools.extend(vector_search_tools)
+
 code_agent_description = (
     "The Coder agent specializes in solving programming challenges, generating code snippets, debugging issues, and explaining complex coding concepts.",
+    # "The Coder agent specializes in retrieving SEC filling documents for RAG. it also specializes in solving programming challenges, generating code snippets, debugging issues, and explaining complex coding concepts.",
+#     """
+# This agent node is specialized for advanced analysis of SEC filing reports by combining two distinct capabilities:
+# 	•	Vector Search Retrieval for SEC Filing Reports:
+# The node efficiently identifies and retrieves SEC filings that are most relevant to the query. Using semantic vector search, it navigates large corpora of SEC documents to pinpoint filings that align closely with the user’s request.
+# 	•	Python Code Execution:
+# Once relevant documents are gathered, the node leverages a Python execution environment to perform complex data processing and analysis. This includes custom computations, statistical analyses, and data visualizations to extract actionable insights from the retrieved filings.
+
+# When to Use This Agent:
+# 	•	Complex Financial Queries:
+# When the query involves in-depth analysis of financial documents or requires detailed computations that go beyond simple text retrieval.
+# 	•	Data-Driven Insights:
+# For situations where the user demands custom data processing or analytical operations that can be dynamically generated and executed in Python.
+# 	•	Timely Analysis:
+# When the task involves rapidly processing large volumes of SEC filings to uncover trends, anomalies, or summary reports.
+
+# This node is ideal for an agentic framework where an LLM must decide if a specialized agent is needed for tasks requiring both robust document retrieval and sophisticated data analysis. The integration of semantic search with dynamic Python execution empowers the LLM to offer precise, data-backed responses in complex financial contexts.
+# """
 )
 code_agent = create_react_agent(llm, tools=tools)
 

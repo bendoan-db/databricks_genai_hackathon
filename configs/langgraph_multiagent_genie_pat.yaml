@@ -5,3 +5,6 @@ multi_agent_llm_config:
   #   temperature: 0.01
 
 genie_space_id: 01f00c360aa7147aa93f081d65b4c8e5
+
+retriever_config:
+  vector_search_index: "felixflory.databricks_genai_hackathon.sec_rag_docs_pages_index"
