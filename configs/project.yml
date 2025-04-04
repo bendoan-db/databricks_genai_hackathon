@@ -14,9 +14,13 @@ external_endpoint_names:
   # - ASK-BEFORE-USE-fflory-claude-3-7
 
 vector_search_attributes:
-  sec_rag_docs_pages: # use the table name (not fully qualified) and the optional values will be imputed and validated
+  id_1: # use the table name (not fully qualified) and the optional values will be imputed and validated
+    table_name: sec_rag_docs_pages
     primary_key: chunk_id
     embedding_source_column: content_chunked
+    url: "https://raw.githubusercontent.com/fflory/databricks_genai_hackathon/main/data/sec_rag_docs_pages.snappy.parquet"
+    # local_path: "/Volumes/felixflory/databricks_genai_hackathon/raw_data/sec_rag_docs_pages.snappy.parquet"
+
 
 genie_tables:
   balance_sheet:

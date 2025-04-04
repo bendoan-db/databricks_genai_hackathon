@@ -16,9 +16,13 @@ class VectorSearchIndexAttributes(VectorSearchModel):
     # Override inherited required fields to be optional here.
     uc_catalog: Optional[str] = None
     uc_schema: Optional[str] = None
+    raw_data_volume: Optional[str] = None
     vector_search_endpoint_name: Optional[str] = None
     embedding_model_endpoint_name: Optional[str] = None
     
+    table_name: str
+    url: Optional[str] = None
+    local_path: Optional[str] = None
     endpoint_name: Optional[str] = None
     index_name: Optional[str] = None
     source_table_name: Optional[str] = None
@@ -59,12 +63,16 @@ class ProjectConfig(Environment):
                 index.uc_catalog = model.uc_catalog
             if index.uc_schema is None:
                 index.uc_schema = model.uc_schema
+            if index.raw_data_volume is None:
+                index.raw_data_volume = model.raw_data_volume
+            if index.local_path is None:
+                index.local_path = f"/Volumes/{index.uc_catalog}/{index.uc_schema}/{index.raw_data_volume}/{index.table_name}.snappy.parquet" 
             if index.endpoint_name is None:
                 index.endpoint_name = model.vector_search_endpoint_name
             if index.index_name is None:
-                index.index_name = f"{model.uc_catalog}.{model.uc_schema}.{key}_index"
+                index.index_name = f"{model.uc_catalog}.{model.uc_schema}.{index.table_name}_index"
             if index.source_table_name is None:
-                index.source_table_name = f"{model.uc_catalog}.{model.uc_schema}.{key}"
+                index.source_table_name = f"{model.uc_catalog}.{model.uc_schema}.{index.table_name}"
             if index.embedding_model_endpoint_name is None:
                 index.embedding_model_endpoint_name = model.embedding_model_endpoint_name
             if index.pipeline_type is None:
