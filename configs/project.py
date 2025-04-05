@@ -5,7 +5,7 @@ class UnityCatalog(BaseModel):
     uc_catalog: str
     uc_schema: str
 
-class GenieModel(UnityCatalog):
+class InputModel(UnityCatalog):
     raw_data_volume: str
 
 class VectorSearchModel(UnityCatalog):
@@ -30,21 +30,21 @@ class VectorSearchIndexAttributes(VectorSearchModel):
     embedding_source_column: str
     pipeline_type: Optional[str] = None
 
-class GenieTableAttributes(GenieModel):
+class InputTableAttributes(InputModel):
     # Override inherited required fields to be optional here.
     uc_catalog: Optional[str] = None
     uc_schema: Optional[str] = None
     raw_data_volume: Optional[str] = None
 
-    name: Optional[str] = Field(
-        default=None,
-        description="This field holds the name of the table. Not the fully qualified name, just the actual table name. It will likely be equivalent to the corresponding dictionary key."
-    )
-    url: str
+    table_name: str #= Field(
+    #     default=None,
+    #     description="This field holds the name of the table. Not the fully qualified name, just the actual table name. It will likely be equivalent to the corresponding dictionary key."
+    # )
+    url: Optional[str] = None
     fqn: Optional[str] = None
     local_path: Optional[str] = None
 
-class Environment(GenieModel, VectorSearchModel):
+class Environment(InputModel, VectorSearchModel):
 
     secret_scope: str
     genie_space_id: str
@@ -79,7 +79,7 @@ class ProjectConfig(Environment):
                 index.pipeline_type = "TRIGGERED"
         return model
 
-    genie_tables: Dict[str, GenieTableAttributes]
+    genie_tables: Dict[str, InputTableAttributes]
 
     @model_validator(mode="after")
     def impute_genie_tables(cls, model: "ProjectConfig") -> "ProjectConfig":
@@ -91,14 +91,33 @@ class ProjectConfig(Environment):
                 table.uc_schema = model.uc_schema
             if table.raw_data_volume is None:
                 table.raw_data_volume = model.raw_data_volume
-            if table.name is None:
-                table.name = key
+            if table.table_name is None:
+                table.table_name = key
             if table.fqn is None:
-                table.fqn = f"{table.uc_catalog}.{table.uc_schema}.{table.name}"
+                table.fqn = f"{table.uc_catalog}.{table.uc_schema}.{table.table_name}"
             if table.local_path is None:
-                table.local_path = f"/Volumes/{table.uc_catalog}/{table.uc_schema}/{table.raw_data_volume}/{table.name}.snappy.parquet" 
+                table.local_path = f"/Volumes/{table.uc_catalog}/{table.uc_schema}/{table.raw_data_volume}/{table.table_name}.snappy.parquet" 
         return model
 
+    eval_tables: Dict[str, InputTableAttributes]
+
+    @model_validator(mode="after")
+    def impute_eval_tables(cls, model: "ProjectConfig") -> "ProjectConfig":
+        # For each eval table, if a value is None, impute he parent's value.
+        for key, table in model.eval_tables.items():
+            if table.uc_catalog is None:
+                table.uc_catalog = model.uc_catalog
+            if table.uc_schema is None:
+                table.uc_schema = model.uc_schema
+            if table.raw_data_volume is None:
+                table.raw_data_volume = model.raw_data_volume
+            if table.table_name is None:
+                table.table_name = key
+            if table.fqn is None:
+                table.fqn = f"{table.uc_catalog}.{table.uc_schema}.{table.table_name}"
+            if table.local_path is None:
+                table.local_path = f"/Volumes/{table.uc_catalog}/{table.uc_schema}/{table.raw_data_volume}/{table.table_name}.snappy.parquet" 
+        return model
 
 if __name__ == "__main__":
     # %pip install -q --upgrade pydantic

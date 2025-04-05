@@ -1,6 +1,7 @@
 from typing import Any, Generator, Optional, Sequence, Union
 
 import mlflow
+
 from databricks_langchain import (
     ChatDatabricks,
     UCFunctionToolkit,
@@ -25,9 +26,10 @@ from mlflow.types.agent import (
 # Define your LLM endpoint and system prompt
 ############################################
 # TODO: Replace with your model serving endpoint
-multi_agent_config = mlflow.models.ModelConfig(development_config="../configs/langgraph_tool_calling_agent.yaml")
-# LLM_ENDPOINT_NAME = "databricks-claude-3-7-sonnet"
-LLM_ENDPOINT_NAME = multi_agent_config.get("multi_agent_llm_config").get("llm_endpoint_name")
+# multi_agent_config = mlflow.models.ModelConfig(development_config="../configs/langgraph_tool_calling_agent.yaml")
+# LLM_ENDPOINT_NAME = multi_agent_config.get("multi_agent_llm_config").get("llm_endpoint_name")
+multi_agent_config = mlflow.models.ModelConfig(development_config="../configs/project.yml")
+LLM_ENDPOINT_NAME = multi_agent_config.get("external_endpoint_names")[0]
 llm = ChatDatabricks(endpoint=LLM_ENDPOINT_NAME)
 
 # TODO: Update with your system prompt
@@ -77,9 +79,19 @@ tools.extend(uc_toolkit.tools)
 # for details
 
 # TODO: Add vector search indexes
+def get_index_name(config: mlflow.models.model_config.ModelConfig, id: str):
+    _index_name = f"{config.get('uc_catalog')}.{config.get('uc_schema')}.{config.get('vector_search_attributes').get(id).get('table_name')}_index"
+    index_name = (
+        config.get("vector_search_attributes").get(id).get("index_name", _index_name)
+    )
+    return index_name
+
+
+index_name = get_index_name(multi_agent_config, "id_1")
+
 vector_search_tools = [
         VectorSearchRetrieverTool(
-        index_name=multi_agent_config.get("retriever_config").get("vector_search_index"),
+        index_name=index_name,
         # filters="..."
     )
 ]
