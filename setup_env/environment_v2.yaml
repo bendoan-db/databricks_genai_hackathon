@@ -1,8 +1,0 @@
-environment_version: "2"
-dependencies:
-  - mlflow==2.21.2
-  - pydantic==2.11.1
-  - langgraph==0.3.21
-  - uv==0.6.10
-  - databricks-agents==0.18.1
-  - databricks-langchain==0.4.1

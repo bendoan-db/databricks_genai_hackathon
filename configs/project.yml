@@ -1,5 +1,5 @@
 uc_catalog: felixflory
-uc_schema: databricks_genai_hackathon
+uc_schema: databricks_genai_hackathon_test
 raw_data_volume: raw_data
 vector_search_endpoint_name: one-env-shared-endpoint-1
 embedding_model_endpoint_name: databricks-bge-large-en
