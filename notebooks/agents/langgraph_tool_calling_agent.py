@@ -27,8 +27,6 @@ from mlflow.types.agent import (
 # Define your LLM endpoint and system prompt
 ############################################
 # TODO: Replace with your model serving endpoint
-# multi_agent_config = mlflow.models.ModelConfig(development_config="../configs/langgraph_tool_calling_agent.yaml")
-# LLM_ENDPOINT_NAME = multi_agent_config.get("multi_agent_llm_config").get("llm_endpoint_name")
 multi_agent_config = mlflow.models.ModelConfig(development_config="../configs/project.yml")
 LLM_ENDPOINT_NAME = multi_agent_config.get("llm_endpoint_names")[0]
 llm = ChatDatabricks(endpoint=LLM_ENDPOINT_NAME)
