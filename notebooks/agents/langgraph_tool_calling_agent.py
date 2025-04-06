@@ -71,7 +71,7 @@ tools = []
 # You can also add local LangChain python tools. See https://python.langchain.com/docs/concepts/tools
 
 # TODO: Add additional tools
-uc_tool_names = ["system.ai.python_exec"]
+uc_tool_names = ["system.ai.python_exec", f"{multi_agent_config.get('uc_catalog')}.{multi_agent_config.get('uc_schema')}.lookup_ticker_info"]
 uc_toolkit = UCFunctionToolkit(function_names=uc_tool_names)
 tools.extend(uc_toolkit.tools)
 
