@@ -138,7 +138,7 @@ question_guidelines = """
 
 # COMMAND ----------
 
-projectConfig.external_endpoint_names[0]
+projectConfig.llm_endpoint_names[0]
 
 # COMMAND ----------
 
@@ -176,7 +176,7 @@ experiment = set_mlflow_experiment(projectConfig.mlflow_experiment_name)
 # Evaluate the model using the newly generated evaluation set. After the function call completes, click the UI link to see the results. You can use this as a baseline for your agent.
 with mlflow.start_run(run_name="Synthetic Evaluation"):
   results = mlflow.evaluate(
-    model=f"endpoints:/{projectConfig.external_endpoint_names[0]}",
+    model=f"endpoints:/{projectConfig.llm_endpoint_names[0]}",
     data=evals,
     model_type="databricks-agent"
   )

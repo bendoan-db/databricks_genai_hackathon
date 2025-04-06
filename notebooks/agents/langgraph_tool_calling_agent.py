@@ -30,7 +30,7 @@ from mlflow.types.agent import (
 # multi_agent_config = mlflow.models.ModelConfig(development_config="../configs/langgraph_tool_calling_agent.yaml")
 # LLM_ENDPOINT_NAME = multi_agent_config.get("multi_agent_llm_config").get("llm_endpoint_name")
 multi_agent_config = mlflow.models.ModelConfig(development_config="../configs/project.yml")
-LLM_ENDPOINT_NAME = multi_agent_config.get("external_endpoint_names")[0]
+LLM_ENDPOINT_NAME = multi_agent_config.get("llm_endpoint_names")[0]
 llm = ChatDatabricks(endpoint=LLM_ENDPOINT_NAME)
 
 # TODO: Update with your system prompt

@@ -48,7 +48,7 @@ class Environment(InputModel, VectorSearchModel):
 
     secret_scope: str
     genie_space_id: str
-    external_endpoint_names: list[str]
+    llm_endpoint_names: list[str]
     mlflow_experiment_base_path: str
     mlflow_experiment_name: str
 

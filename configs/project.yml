@@ -8,7 +8,7 @@ genie_space_id: 01f00c360aa7147aa93f081d65b4c8e5
 mlflow_experiment_base_path: 'Users/felix.flory@databricks.com/mlflow_experiments'
 mlflow_experiment_name: databricks_genai_hackathon
 
-external_endpoint_names: 
+llm_endpoint_names: 
   # - databricks-llama-4-maverick
   # - databricks-claude-3-7-sonnet
   - ASK-BEFORE-USE-fflory-gpt-4o
