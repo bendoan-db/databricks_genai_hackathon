@@ -1,0 +1,19 @@
+chunking_config:
+  chunk_overlap_tokens: 256
+  chunk_size_tokens: 1024
+  class_path: __main__.RecursiveTextSplitterChunkingConfig
+  embedding_model_endpoint: databricks-gte-large-en
+class_path: __main__.DataPipelineConfig
+output:
+  chunked_docs_table: felixflory.databricks_genai_hackathon.pdfs_docs_chunked
+  class_path: __main__.DataPipelineOutputConfig
+  parsed_docs_table: felixflory.databricks_genai_hackathon.pdfs_docs
+  vector_index: felixflory.databricks_genai_hackathon.pdfs_docs_chunked_index
+  vector_search_endpoint: one-env-shared-endpoint-0
+source:
+  class_path: __main__.UCVolumeSourceConfig
+  uc_catalog_name: felixflory
+  uc_schema_name: databricks_genai_hackathon
+  uc_volume_name: pdfs
+  volume_path: /Volumes/felixflory/databricks_genai_hackathon/pdfs
+  volume_uc_fqn: felixflory.databricks_genai_hackathon.pdfs
