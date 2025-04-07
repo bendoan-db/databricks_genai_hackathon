@@ -1,0 +1,11 @@
+databricks_config:
+  catalog: doan
+  schema: alphaledger
+  bronze_table: sec_docs_bronze
+  silver_table: sec_docs_silver
+  gold_table: sec_docs_gold
+llm_config:
+  llm_endpoint_name: doan-gpt-4o
+  llm_parameters:
+    max_tokens: 1500
+    temperature: 0.0
