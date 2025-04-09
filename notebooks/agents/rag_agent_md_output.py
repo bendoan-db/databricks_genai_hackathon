@@ -138,11 +138,36 @@ def create_tool_calling_agent(
         response = model_runnable.invoke(state, config)
 
         return {"messages": [response]}
+    
+    # def formatter_node(
+    #     state: ChatAgentState,
+    #     # config: RunnableConfig,
+    # ) -> ChatAgentState:
+    #     messages = state["messages"].copy()
+
+    #     last_message = next((msg for msg in reversed(messages) if msg["role"] == "assistant"), None)
+    #     if last_message:
+    #         content = last_message["content"]
+    #         formatted_content = f"**{content}     !!!**"
+    #         messages.append({"role": "assistant", "content": formatted_content})
+    #         return {"messages": messages}
+        
+    #     return {"messages": messages}
+    
+    def formatter_node(state: ChatAgentState):
+        system_prompt = "Using only the content in the messages, respond to the user's question using the answer given by the other agents. Make sure to format the output in markdown format with a title that summarizes your answer."
+        preprocessor = RunnableLambda(
+            lambda state: [{"role": "system", "content": system_prompt}] + state["messages"]
+        )
+        final_answer_chain = preprocessor | llm
+        return {"messages": [final_answer_chain.invoke(state)]}
+
 
     workflow = StateGraph(ChatAgentState)
 
     workflow.add_node("agent", RunnableLambda(call_model))
     workflow.add_node("tools", ChatAgentToolNode(tools))
+    workflow.add_node("formatter", formatter_node)
 
     workflow.set_entry_point("agent")
     workflow.add_conditional_edges(
@@ -150,10 +175,12 @@ def create_tool_calling_agent(
         should_continue,
         {
             "continue": "tools",
-            "end": END,
+            # "end": END,
+            "end": "formatter",
         },
     )
     workflow.add_edge("tools", "agent")
+    workflow.add_edge("formatter", END)
 
     return workflow.compile()
 
