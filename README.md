@@ -1,5 +1,10 @@
 # databricks_genai_hackathon
 
+# Cluster config
+
+Either use serverless cluster or a Standard Databricks Cluster with runtime 15.4 LTS or higher (do not use the Machine Learning Runtime.) 
+For a standard databricks runtime cluster please library-install the [requirements.txt](requirements.txt) on the cluster, so that you can ommit the pip install commands at the begging of the notbooks.
+
 # Disclaimer
 
 Disclaimer

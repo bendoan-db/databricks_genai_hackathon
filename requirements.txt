@@ -3,6 +3,6 @@
   uv==0.6.10
   databricks-agents==0.18.1
   databricks-langchain==0.4.1
-  databricks-vectorsearch==0.54
+  databricks-vectorsearch==0.55
   unitycatalog-ai==0.3.0
   unitycatalog-langchain==0.2.0

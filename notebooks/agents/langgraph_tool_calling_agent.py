@@ -216,7 +216,7 @@ class LangGraphChatAgent(ChatAgent):
             if not content:  # Skip empty chunks
                 continue
 
-            response_id = str(uuid.uuid4())
+            # response_id = str(uuid.uuid4())
 
             chunk = ChatAgentChunk(
                 delta=ChatAgentMessage(

@@ -3,6 +3,7 @@ import os
 from typing import Any, Generator, Literal, Optional
 
 import mlflow
+import uuid
 from databricks.sdk import WorkspaceClient
 from databricks_langchain import (
     ChatDatabricks,
@@ -207,16 +208,37 @@ class LangGraphChatAgent(ChatAgent):
         context: Optional[ChatContext] = None,
         custom_inputs: Optional[dict[str, Any]] = None,
     ) -> Generator[ChatAgentChunk, None, None]:
-        request = {
-            "messages": [m.model_dump_compat(exclude_none=True) for m in messages]
-        }
-        for event in self.agent.stream(request, stream_mode="updates"):
-            for node_data in event.values():
-                yield from (
-                    ChatAgentChunk(**{"delta": msg})
-                    for msg in node_data.get("messages", [])
-                )
+        request = {"messages": self._convert_messages_to_dict(messages)}
+        response_id = str(uuid.uuid4())
+        
+        for event in self.agent.stream(request, stream_mode="messages"):
+            # Event is a tuple: (AIMessageChunk, metadata)
+            if isinstance(event, tuple) and len(event) >= 2:
+                message_chunk, metadata = event[0], event[1]
+                # Extract content from AIMessageChunk
+                content = message_chunk.content
+                idid = message_chunk.id
+                # AIMessageChunk typically doesn’t have role in stream_mode="messages", default to "assistant"
+                role = getattr(message_chunk, "role", "assistant") if hasattr(message_chunk, "role") else "assistant"
+            else:
+                print("Unexpected event format:", event)
+                continue
+            
+            if not content:  # Skip empty chunks
+                continue
 
+            # response_id = str(uuid.uuid4())
+
+            chunk = ChatAgentChunk(
+                delta=ChatAgentMessage(
+                        **{
+                            "role": role,
+                            "content": content,
+                            "id": response_id,
+                        }
+                    )
+            )
+            yield chunk
 
 # Create the agent object, and specify it as the agent object to use when
 # loading the agent back for inference via mlflow.models.set_model()
