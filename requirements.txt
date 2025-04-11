@@ -4,6 +4,6 @@
   databricks-agents==0.18.1
   databricks-langchain==0.4.1
   databricks-vectorsearch==0.55
-  unitycatalog-ai==0.3.0
+  unitycatalog-langchain[databricks]==0.3.0
   unitycatalog-langchain==0.2.0
   databricks-sqlalchemy==2.0.5

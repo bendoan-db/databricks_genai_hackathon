@@ -5,11 +5,12 @@
 
 # COMMAND ----------
 
-# MAGIC %pip install mlflow mlflow[databricks] databricks-agents
-# MAGIC dbutils.library.restartPython()
+# %pip install mlflow mlflow[databricks] databricks-agents
+# dbutils.library.restartPython()
 
 # COMMAND ----------
 
+import pandas as pd
 import sys, os, yaml
 sys.path.append(os.path.abspath('..'))
 from configs.project import ProjectConfig
@@ -21,12 +22,19 @@ projectConfig = ProjectConfig(**data)
 
 # COMMAND ----------
 
-# TODO: choose the correct index here most likely "id_1"
-_config = projectConfig.vector_search_attributes["id_1"]
+# MAGIC %md
+# MAGIC # Load a delta table with prepared text chunks
 
 # COMMAND ----------
 
+# TODO: choose the correct index here most likely "id_1"
+_config = projectConfig.vector_search_attributes["id_1"]
 display(spark.table(_config.source_table_name))
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC sample and load into a pandas dataframe.
 
 # COMMAND ----------
 

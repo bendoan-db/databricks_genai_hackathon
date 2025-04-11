@@ -1,9 +1,19 @@
 # databricks_genai_hackathon
 
-# Cluster config
+# Cluster Config
 
-Either use serverless cluster or a Standard Databricks Cluster with runtime 15.4 LTS or higher (do not use the Machine Learning Runtime.) 
-For a standard databricks runtime cluster please library-install the [requirements.txt](requirements.txt) on the cluster, so that you can ommit the pip install commands at the begging of the notbooks.
+On Databricks use a serverless cluster or a standard cluster with runtime 15.4 LTS or higher. A Machine Learning Runtime is not recommended. 
+For a standard databricks runtime please [install](https://docs.databricks.com/aws/en/libraries/cluster-libraries) the required libraries listed in [requirements.txt](requirements.txt). You can then ommit the ```pip install ...``` commands at the begging of the notbooks.
+
+# Project Setup
+
+ - edit [configs/project.yml](configs/project.yml) to specify your settings
+ - run the project setup notebook  [setup_env/workspace_assets.ipynb](setup_env/workspace_assets.ipynb)
+
+ # Notebooks
+
+After the project setup you can work through the notebooks in the notebooks folder. 
+
 
 # Disclaimer
 

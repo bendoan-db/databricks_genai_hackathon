@@ -3,12 +3,10 @@ from typing import Any, Generator, Optional, Sequence, Union
 import mlflow
 import uuid
 from databricks_langchain import ChatDatabricks
-# from unitycatalog.ai.core.databricks import DatabricksFunctionClient
-# from unitycatalog.ai.langchain.toolkit import UCFunctionToolkit
 
 from databricks_langchain import (
-    ChatDatabricks,
-    UCFunctionToolkit,
+    # ChatDatabricks,
+    # UCFunctionToolkit,
     VectorSearchRetrieverTool,
 )
 from langchain_core.language_models import LanguageModelLike
@@ -26,6 +24,11 @@ from mlflow.types.agent import (
     ChatAgentResponse,
     ChatContext,
 )
+
+from unitycatalog.ai.langchain.toolkit import UCFunctionToolkit
+from unitycatalog.ai.core.databricks import DatabricksFunctionClient
+
+client = DatabricksFunctionClient()
 
 ############################################
 # Define your LLM endpoint and system prompt
@@ -74,7 +77,7 @@ tools = []
 
 # TODO: Add additional tools
 uc_tool_names = ["system.ai.python_exec", f"{multi_agent_config.get('uc_catalog')}.{multi_agent_config.get('uc_schema')}.lookup_ticker_info"]
-uc_toolkit = UCFunctionToolkit(function_names=uc_tool_names)
+uc_toolkit = UCFunctionToolkit(function_names=uc_tool_names, client=client)
 tools.extend(uc_toolkit.tools)
 
 # Use Databricks vector search indexes as tools

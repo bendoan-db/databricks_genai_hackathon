@@ -1,17 +1,18 @@
-uc_catalog: doan
+uc_catalog: felixflory
 uc_schema: databricks_genai_hackathon
 raw_data_volume: raw_data
-vector_search_endpoint_name: one-env-shared-endpoint-15
+vector_search_endpoint_name: one-env-shared-endpoint-1
 embedding_model_endpoint_name: databricks-bge-large-en
-secret_scope: doan
+secret_scope: felix-flory
 genie_space_id: 01f00c360aa7147aa93f081d65b4c8e5
-mlflow_experiment_base_path: 'Users/ben.doan@databricks.com/mlflow_experiments'
+mlflow_experiment_base_path: 'Users/felix.flory@databricks.com/mlflow_experiments'
 mlflow_experiment_name: databricks_genai_hackathon
 
 llm_endpoint_names: 
+  # - databricks-meta-llama-3-1-70b-instruct
   # - databricks-llama-4-maverick
-  - databricks-claude-3-7-sonnet
-  #- ASK-BEFORE-USE-fflory-gpt-4o
+  # - databricks-claude-3-7-sonnet
+  - ASK-BEFORE-USE-fflory-gpt-4o
   # - ASK-BEFORE-USE-fflory-claude-3-7
 
 vector_search_attributes:
