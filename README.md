@@ -5,6 +5,12 @@
 On Databricks use a serverless cluster or a standard cluster with runtime 15.4 LTS or higher. A Machine Learning Runtime is not recommended. 
 For a standard databricks runtime please [install](https://docs.databricks.com/aws/en/libraries/cluster-libraries) the required libraries listed in [requirements.txt](requirements.txt). You can then ommit the ```pip install ...``` commands at the begging of the notbooks.
 
+# For admins
+
+- ideally, hackathon users should have permissions to create their individual unity catalog schema. This greatly reduces the need to specify individual assests like tablenames, uc-function names, models etc. 
+- yaml files do not get cloned TODO specify defaults in the pydantic model itself and users can edit those defaults
+- TODO if no internet access the tables have to be setup differently (load local parquet files to pandas and write to delta table)
+
 # Project Setup
 
  - edit [configs/project.yml](configs/project.yml) to specify your settings

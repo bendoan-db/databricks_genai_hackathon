@@ -1,5 +1,6 @@
 from pydantic import BaseModel, field_validator, computed_field, model_validator, Field
 from typing import Dict, Any, Optional
+import os, sys, yaml
 
 class UnityCatalog(BaseModel):
     uc_catalog: str
@@ -23,6 +24,7 @@ class VectorSearchIndexAttributes(VectorSearchModel):
     table_name: str
     url: Optional[str] = None
     local_path: Optional[str] = None
+    local_clone_path: Optional[str] = None
     endpoint_name: Optional[str] = None
     index_name: Optional[str] = None
     source_table_name: Optional[str] = None
@@ -43,6 +45,7 @@ class InputTableAttributes(InputModel):
     url: Optional[str] = None
     fqn: Optional[str] = None
     local_path: Optional[str] = None
+    local_clone_path: Optional[str] = None
 
 class Environment(InputModel, VectorSearchModel):
 
@@ -117,7 +120,44 @@ class ProjectConfig(Environment):
                 table.fqn = f"{table.uc_catalog}.{table.uc_schema}.{table.table_name}"
             if table.local_path is None:
                 table.local_path = f"/Volumes/{table.uc_catalog}/{table.uc_schema}/{table.raw_data_volume}/{table.table_name}.snappy.parquet" 
+            # if table.local_clone_path is None:
+            #     table.local_clone_path = f"/tmp/{table.table_name}.snappy.parquet"
         return model
+
+def get_project_root_path(indicator_variable='PROJECT_ROOT_INDICATOR', start_path=None):
+    if start_path is None:
+        start_path = os.getcwd()
+
+    current_path = os.path.abspath(start_path)
+
+    while True:
+        init_path = os.path.join(current_path, "__init__.py")
+        if os.path.isfile(init_path):
+            with open(init_path, "r", encoding="utf-8") as f:
+                if indicator_variable in f.read():
+                    if current_path not in sys.path:
+                        sys.path.append(current_path)
+                    return current_path
+
+        new_path = os.path.abspath(os.path.join(current_path, ".."))
+        if new_path == current_path:
+            return None
+
+        current_path = new_path
+
+def get_project_config(project_yml_path = None, indicator_variable='PROJECT_ROOT_INDICATOR', start_path=None):
+    project_root_path = get_project_root_path(indicator_variable, start_path)
+    if project_yml_path is None:
+        project_yml_path = os.path.join(project_root_path, "configs", "project.yml")
+    if not os.path.exists(project_yml_path):
+        raise FileNotFoundError(f"Project configuration file not found at {project_yml_path}")
+
+    with open(project_yml_path, "r") as file:
+        data = yaml.safe_load(file)
+
+    projectConfig = ProjectConfig(**data)
+    return projectConfig
+
 
 if __name__ == "__main__":
     # %pip install -q --upgrade pydantic

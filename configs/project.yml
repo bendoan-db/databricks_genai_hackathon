@@ -10,9 +10,10 @@ mlflow_experiment_name: databricks_genai_hackathon
 
 llm_endpoint_names: 
   # - databricks-meta-llama-3-1-70b-instruct
+  - databricks-meta-llama-3-3-70b-instruct
   # - databricks-llama-4-maverick
   # - databricks-claude-3-7-sonnet
-  - ASK-BEFORE-USE-fflory-gpt-4o
+  # - ASK-BEFORE-USE-fflory-gpt-4o
   # - ASK-BEFORE-USE-fflory-claude-3-7
 
 vector_search_attributes:
@@ -21,6 +22,7 @@ vector_search_attributes:
     # index_name: 'felixflory.databricks_genai_hackathon.sec_rag_docs_pages_index'
     primary_key: chunk_id
     embedding_source_column: content_chunked
+    local_clone_path: "data/sec_rag_docs_pages.snappy.parquet"
     url: "https://raw.githubusercontent.com/fflory/databricks_genai_hackathon/main/data/sec_rag_docs_pages.snappy.parquet"
     # local_path: "/Volumes/felixflory/databricks_genai_hackathon/raw_data/sec_rag_docs_pages.snappy.parquet"
 
@@ -28,10 +30,12 @@ vector_search_attributes:
 genie_tables:
   id_1:
     table_name: balance_sheet
+    local_clone_path: "data/balance_sheet.parquet"
     # name: balance_sheet
     url: "https://raw.githubusercontent.com/fflory/databricks_genai_hackathon/main/data/balance_sheet.parquet"
   id_2:
     table_name: income_statement
+    local_clone_path: "data/income_statement.parquet"
     # name: income_statement
     url: "https://raw.githubusercontent.com/fflory/databricks_genai_hackathon/main/data/income_statement.parquet"
 
@@ -39,6 +43,7 @@ genie_tables:
 eval_tables:
   id_1:
     table_name: sec_rag_eval_data
+    local_clone_path: "data/sec_rag_eval_data.snappy.parquet"
     # fqn: felixflory.databricks_genai_hackathon.sec_rag_eval_data
     url: "https://raw.githubusercontent.com/fflory/databricks_genai_hackathon/main/data/sec_rag_eval_data.snappy.parquet"
     # local_path: "/Volumes/felixflory/databricks_genai_hackathon/raw_data/sec_rag_eval_data.snappy.parquet"
