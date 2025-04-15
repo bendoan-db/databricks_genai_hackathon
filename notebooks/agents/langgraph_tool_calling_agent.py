@@ -206,8 +206,6 @@ class LangGraphChatAgent(ChatAgent):
             if not content:  # Skip empty chunks
                 continue
 
-            # response_id = str(uuid.uuid4())
-
             chunk = ChatAgentChunk(
                 delta=ChatAgentMessage(
                         **{
@@ -218,7 +216,6 @@ class LangGraphChatAgent(ChatAgent):
                     )
             )
             yield chunk
-
 
 
 # Create the agent object, and specify it as the agent object to use when

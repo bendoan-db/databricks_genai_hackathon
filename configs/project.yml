@@ -9,7 +9,6 @@ mlflow_experiment_base_path: 'Users/felix.flory@databricks.com/mlflow_experiment
 mlflow_experiment_name: databricks_genai_hackathon
 
 llm_endpoint_names: 
-  # - databricks-meta-llama-3-1-70b-instruct
   - databricks-meta-llama-3-3-70b-instruct
   # - databricks-llama-4-maverick
   # - databricks-claude-3-7-sonnet

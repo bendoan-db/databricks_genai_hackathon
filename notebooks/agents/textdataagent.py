@@ -84,7 +84,7 @@ code_agent = create_react_agent(llm, tools=tools)
 
 # TODO update the max number of iterations between supervisor and worker nodes
 # before returning to the user
-MAX_ITERATIONS = 3
+MAX_ITERATIONS = 5
 
 worker_descriptions = {
     "Genie": genie_agent_description,
@@ -95,7 +95,15 @@ formatted_descriptions = "\n".join(
     f"- {name}: {desc}" for name, desc in worker_descriptions.items()
 )
 
-system_prompt = f"Decide between routing between the following workers or ending the conversation if an answer is provided. \n{formatted_descriptions}"
+system_prompt = f"""Decide between routing between the following workers or ending the conversation if an answer is provided. \n{formatted_descriptions}.
+    Keep in mind that you are an orchestrator responsible for coordinating these specialized agents, including a text-to-SQL agent. You must:
+	1.	Use the existing information from the text-to-SQL agent’s output (or other agents’ outputs) whenever possible.
+	2.	Call an agent only once unless you need additional, essential information.
+	3.	Avoid redundant queries to the same agent.
+	4.	Synthesize and respond directly to the user using the data or answers already provided by the agents.
+
+Important: If the answer is already available from the previous agent outputs, do not initiate new queries to the same agent. Provide a concise, direct reply to the user, incorporating the agent results only as needed."""
+
 options = ["FINISH"] + list(worker_descriptions.keys())
 
 

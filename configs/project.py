@@ -119,9 +119,7 @@ class ProjectConfig(Environment):
             if table.fqn is None:
                 table.fqn = f"{table.uc_catalog}.{table.uc_schema}.{table.table_name}"
             if table.local_path is None:
-                table.local_path = f"/Volumes/{table.uc_catalog}/{table.uc_schema}/{table.raw_data_volume}/{table.table_name}.snappy.parquet" 
-            # if table.local_clone_path is None:
-            #     table.local_clone_path = f"/tmp/{table.table_name}.snappy.parquet"
+                table.local_path = f"/Volumes/{table.uc_catalog}/{table.uc_schema}/{table.raw_data_volume}/{table.table_name}.snappy.parquet"
         return model
 
 def get_project_root_path(indicator_variable='PROJECT_ROOT_INDICATOR', start_path=None):
