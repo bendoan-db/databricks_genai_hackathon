@@ -150,10 +150,27 @@ projectConfig.llm_endpoint_names[0]
 
 # COMMAND ----------
 
+# MAGIC %md
+# MAGIC Show how num_evals is used. See
+# MAGIC https://learn.microsoft.com/en-us/azure/databricks/generative-ai/agent-evaluation/synthesize-evaluation-set#how-num_evals-is-used
+
+# COMMAND ----------
+
+from databricks.agents.evals import estimate_synthetic_num_evals
+
+num_evals = estimate_synthetic_num_evals(
+  input_df, # Same docs as before.
+  eval_per_x_tokens = 1000 # Generate 1 eval for every x tokens to control the coverage level.
+)
+print(num_evals)
+
+# COMMAND ----------
+
 import mlflow
 from databricks.agents.evals import generate_evals_df
 import pandas as pd
 
+# COMMAND ----------
 
 num_evals = 10
 
@@ -182,7 +199,7 @@ experiment = set_mlflow_experiment(projectConfig.mlflow_experiment_name)
 # COMMAND ----------
 
 # Evaluate the model using the newly generated evaluation set. After the function call completes, click the UI link to see the results. You can use this as a baseline for your agent.
-with mlflow.start_run(run_name="Synthetic Evaluation"):
+with mlflow.start_run(run_name="Synthetic Evaluation 2"):
   results = mlflow.evaluate(
     model=f"endpoints:/{projectConfig.llm_endpoint_names[0]}",
     data=evals,

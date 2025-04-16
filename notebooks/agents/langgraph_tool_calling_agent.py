@@ -99,6 +99,7 @@ vector_search_tools = [
         VectorSearchRetrieverTool(
         index_name=index_name,
         # filters="..."
+        # query_type="ANN" # "HYBRID"
     )
 ]
 tools.extend(vector_search_tools)

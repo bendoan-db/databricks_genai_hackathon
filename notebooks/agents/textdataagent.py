@@ -24,9 +24,9 @@ from mlflow.types.agent import (
 )
 from pydantic import BaseModel
 
-# multi_agent_config = mlflow.models.ModelConfig(development_config="../configs/langgraph_multiagent_genie_pat.yaml")
-multi_agent_config = mlflow.models.ModelConfig(development_config="../configs/project.yml")
-LLM_ENDPOINT_NAME = multi_agent_config.get("llm_endpoint_names")[0]
+multi_agent_config = mlflow.models.ModelConfig(development_config="../configs/langgraph_multiagent_genie_pat.yaml")
+# multi_agent_config = mlflow.models.ModelConfig(development_config="../configs/project.yml")
+LLM_ENDPOINT_NAME = multi_agent_config.get("llm_endpoint_name")
 GENIE_SPACE_ID = multi_agent_config.get("genie_space_id")
 
 

@@ -9,10 +9,10 @@ mlflow_experiment_base_path: 'Users/felix.flory@databricks.com/mlflow_experiment
 mlflow_experiment_name: databricks_genai_hackathon
 
 llm_endpoint_names: 
-  - databricks-meta-llama-3-3-70b-instruct
+  # - databricks-meta-llama-3-3-70b-instruct
   # - databricks-llama-4-maverick
   # - databricks-claude-3-7-sonnet
-  # - ASK-BEFORE-USE-fflory-gpt-4o
+  - ASK-BEFORE-USE-fflory-gpt-4o
   # - ASK-BEFORE-USE-fflory-claude-3-7
 
 vector_search_attributes:
