@@ -1,6 +1,7 @@
 databricks_resources:
   llm_endpoint_name: databricks-claude-3-7-sonnet
   vector_search_endpoint_name: one-env-shared-endpoint-1
+  model_name: rag_agent
 
 input_example:
   messages:
