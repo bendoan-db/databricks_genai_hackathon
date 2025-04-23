@@ -3,7 +3,6 @@ from typing import Any, Generator, Optional, Sequence, Union
 import mlflow
 import uuid
 from databricks_langchain import ChatDatabricks
-
 from databricks_langchain import (
     # ChatDatabricks,
     # UCFunctionToolkit,
@@ -27,6 +26,16 @@ from mlflow.types.agent import (
 
 from unitycatalog.ai.langchain.toolkit import UCFunctionToolkit
 from unitycatalog.ai.core.databricks import DatabricksFunctionClient
+
+from databricks.sdk import WorkspaceClient
+
+
+invokers_client = WorkspaceClient(
+    # credentials_strategy = ModelServingUserCredentials()
+    host="https://e2-demo-field-eng.cloud.databricks.com",
+    client_id     = dbutils.secrets.get("felix-flory", "SERVICE_PRINCIPAL_ID"),
+    client_secret = dbutils.secrets.get("felix-flory", "SERVICE_PRINCIPAL_SECRET"),    
+)
 
 client = DatabricksFunctionClient()
 
@@ -70,6 +79,15 @@ Remember: Your strength lies in combining qualitative insights from SEC filings 
 ###############################################################################
 tools = []
 
+invokers_client = WorkspaceClient(
+    # credentials_strategy = ModelServingUserCredentials()
+    workspace_url="https://e2-demo-field-eng.cloud.databricks.com",
+    personal_access_token="",
+    service_principal_client_id="",
+    service_principal_client_secret="",
+)
+
+
 # You can use UDFs in Unity Catalog as agent tools
 # Below, we add the `system.ai.python_exec` UDF, which provides
 # a python code interpreter tool to our agent
@@ -98,8 +116,10 @@ index_name = get_index_name(multi_agent_config, "id_1")
 vector_search_tools = [
         VectorSearchRetrieverTool(
         index_name=index_name,
-        # filters="..."
-        # query_type="ANN" # "HYBRID"
+        tool_description="Retrieves information about company earning reports from SEC documents.",
+        # filters="...",
+        # query_type="ANN", # "HYBRID"
+        workspace_client = invokers_client,
     )
 ]
 tools.extend(vector_search_tools)

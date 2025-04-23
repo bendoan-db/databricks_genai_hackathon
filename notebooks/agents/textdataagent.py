@@ -8,6 +8,7 @@ from databricks.sdk import WorkspaceClient
 from databricks_langchain import (
     ChatDatabricks,
     UCFunctionToolkit,
+    VectorSearchRetrieverTool,
 )
 from databricks_langchain.genie import GenieAgent
 from langchain_core.runnables import RunnableLambda
@@ -70,11 +71,27 @@ llm = ChatDatabricks(endpoint=LLM_ENDPOINT_NAME)
 tools = []
 
 # TODO if desired, add additional tools and update the description of this agent
-uc_tool_names = ["system.ai.*"]
-uc_toolkit = UCFunctionToolkit(function_names=uc_tool_names)
-tools.extend(uc_toolkit.tools)
+# uc_tool_names = ["system.ai.*"]
+# uc_toolkit = UCFunctionToolkit(function_names=uc_tool_names)
+# tools.extend(uc_toolkit.tools)
+
+
+# TODO: Add vector search indexes
+index_name = multi_agent_config.get("vector_search_index")
+
+vector_search_tools = [
+        VectorSearchRetrieverTool(
+        index_name=index_name,
+        tool_description="This is a text-to-sql agent with access to company income statement and balance sheet data."
+        # filters="..."
+        # query_type="ANN" # "HYBRID"
+    )
+]
+tools.extend(vector_search_tools)
+
+
 code_agent_description = (
-    "The Coder agent specializes in solving programming challenges, generating code snippets, debugging issues, and explaining complex coding concepts.",
+    "Retrieves information about company earning reports from SEC documents",
 )
 code_agent = create_react_agent(llm, tools=tools)
 
@@ -88,7 +105,7 @@ MAX_ITERATIONS = 5
 
 worker_descriptions = {
     "Genie": genie_agent_description,
-    "Coder": code_agent_description,
+    "Retriever": code_agent_description,
 }
 
 formatted_descriptions = "\n".join(
@@ -97,7 +114,7 @@ formatted_descriptions = "\n".join(
 
 system_prompt = f"""Decide between routing between the following workers or ending the conversation if an answer is provided. \n{formatted_descriptions}.
     Keep in mind that you are an orchestrator responsible for coordinating these specialized agents, including a text-to-SQL agent. You must:
-	1.	Use the existing information from the text-to-SQL agent’s output (or other agents’ outputs) whenever possible.
+	1.	Use the existing information from the Genie text-to-SQL agent’s output (or other agents’ outputs) whenever possible. Simple questions about company total assests or revenue can usually be retrieved with the Genie text-to-SQL agent. 
 	2.	Call an agent only once unless you need additional, essential information.
 	3.	Avoid redundant queries to the same agent.
 	4.	Synthesize and respond directly to the user using the data or answers already provided by the agents.
@@ -160,12 +177,12 @@ class AgentState(ChatAgentState):
     iteration_count: int
 
 
-code_node = functools.partial(agent_node, agent=code_agent, name="Coder")
+code_node = functools.partial(agent_node, agent=code_agent, name="Retriever")
 genie_node = functools.partial(agent_node, agent=genie_agent, name="Genie")
 
 workflow = StateGraph(AgentState)
 workflow.add_node("Genie", genie_node)
-workflow.add_node("Coder", code_node)
+workflow.add_node("Retriever", code_node)
 workflow.add_node("supervisor", supervisor_agent)
 workflow.add_node("final_answer", final_answer)
 
