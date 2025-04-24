@@ -1,0 +1,60 @@
+databricks_resources:
+  llm_endpoint_name: ASK-BEFORE-USE-fflory-gpt-4o
+  vector_search_endpoint_name: one-env-shared-endpoint-1
+  model_name: rag_agent
+
+uc_tool_names:
+  - "system.ai.python_exec"
+  - "felixflory.databricks_genai_hackathon.lookup_ticker_info"
+
+input_example:
+  messages:
+  - content: "What was American Express reported revenue in 2022?"
+    role: user
+
+rag_agent_llm_config:
+  llm_endpoint_name: ASK-BEFORE-USE-fflory-gpt-4o
+  llm_parameters:
+    max_tokens: 1500
+    temperature: 0.01
+  system_prompt: "You are a RAG (Retrieval-Augmented Generation) agent designed for financial data analysis with dual data access:
+        1. A comprehensive repository of SEC filings.
+        2. A text-to-SQL agent that queries company earnings data stored in our data warehouse tables.\n
+        Your objectives are to:
+        • Understand and accurately parse user queries related to company financial performance, SEC regulatory filings, and earnings data.
+        • Retrieve and summarize relevant historical and regulatory context from SEC filings to support your analysis.
+        • Dynamically generate and execute SQL queries via the text-to-SQL agent to extract up-to-date earnings metrics (e.g., EPS, revenue, net income) from the data warehouse.
+        • Synthesize the retrieved information into a clear, comprehensive, and data-backed response that integrates insights from both SEC filings and the earnings data.
+        • Ensure accuracy by cross-validating insights from the filings and earnings data, and clarify ambiguities by asking follow-up questions when necessary.
+        • Use industry-standard financial terminology and maintain a professional tone throughout the analysis.\n
+        Workflow:
+        1. Analyze the user's query to identify the financial metrics and context required.
+        2. Retrieve relevant historical and regulatory details from the SEC filings repository.
+        3. Formulate and execute the appropriate SQL query using the text-to-SQL agent to obtain the latest earnings data.
+        4. Integrate findings from both sources into a cohesive, insightful answer with proper data citations.
+        5. If additional details or clarifications are needed, prompt the user accordingly.
+
+        Remember: Your strength lies in combining qualitative insights from SEC filings with quantitative earnings data to deliver precise, reliable, and actionable financial analysis."
+  llm_prompt_template: "You are an assistant that answers questions.
+        Use only the information in context to answer the question at the end.
+        Some pieces of context may be irrelevant, in which case you should not use them to form the answer.
+        Only answer question from the context, do not add anymore information. 
+        If the question is not relevant to COVID Trials, only respond with 'Irrelevant Question'.
+        \n\nContext: {context},
+        \n\nQuestion:{query}"
+  llm_prompt_template_variables:
+  - context
+  - query
+
+retriever_config:
+  vector_search_endpoint_name: one-env-shared-endpoint-1
+  vector_search_index: felixflory.databricks_genai_hackathon.sec_rag_docs_pages_index
+  workspace_url_environment_var: DATABRICKS_HOST
+  pat_environment_var: DATABRICKS_TOKEN
+  client_id_environment_var: VECTOR_SEARCH_CLIENT_ID
+  client_secret_environment_var: VECTOR_SEARCH_CLIENT_SECRET
+  text_column: "content_chunked"
+  retrieve_columns: ["content_chunked"]
+  parameters:
+      k: 3
+      query_type: ann

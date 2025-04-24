@@ -12,13 +12,9 @@
 
 import pandas as pd
 import sys, os, yaml
-sys.path.append(os.path.abspath('..'))
-from configs.project import ProjectConfig
+from configs.project import get_project_config
 
-with open("../configs/project.yml", "r") as file:
-    data = yaml.safe_load(file)
-
-projectConfig = ProjectConfig(**data)
+projectConfig = get_project_config()
 
 # COMMAND ----------
 
