@@ -1,6 +1,6 @@
 databricks_resources:
-  llm_endpoint_name: ASK-BEFORE-USE-fflory-gpt-4o
-  vector_search_endpoint_name: one-env-shared-endpoint-1
+  # llm_endpoint_name: ASK-BEFORE-USE-fflory-gpt-4o
+  # vector_search_endpoint_name: one-env-shared-endpoint-1
   model_name: rag_agent
 
 uc_tool_names:
@@ -49,6 +49,7 @@ rag_agent_llm_config:
 retriever_config:
   vector_search_endpoint_name: one-env-shared-endpoint-1
   vector_search_index: felixflory.databricks_genai_hackathon.sec_rag_docs_pages_index
+  tool_description: "Retrieves information about company earning reports from SEC documents."
   workspace_url_environment_var: DATABRICKS_HOST
   pat_environment_var: DATABRICKS_TOKEN
   client_id_environment_var: VECTOR_SEARCH_CLIENT_ID

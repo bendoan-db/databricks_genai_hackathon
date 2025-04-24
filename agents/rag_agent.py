@@ -2,9 +2,8 @@ from typing import Any, Generator, Optional, Sequence, Union
 
 import mlflow
 import uuid
-from databricks_langchain import ChatDatabricks
 from databricks_langchain import (
-    # ChatDatabricks,
+    ChatDatabricks,
     # UCFunctionToolkit,
     VectorSearchRetrieverTool,
 )
@@ -37,33 +36,11 @@ client = DatabricksFunctionClient()
 ############################################
 # TODO: Replace with your model serving endpoint
 multi_agent_config = mlflow.models.ModelConfig(development_config="../configs/rag_agent.yaml")
-LLM_ENDPOINT_NAME = multi_agent_config.get("databricks_resources").get("llm_endpoint_name")
+LLM_ENDPOINT_NAME = multi_agent_config.get("rag_agent_llm_config").get("llm_endpoint_name")
 llm = ChatDatabricks(endpoint=LLM_ENDPOINT_NAME)
 
 # TODO: Update with your system prompt
 system_prompt = multi_agent_config.get("rag_agent_llm_config").get("system_prompt")
-# system_prompt = """
-# You are a RAG (Retrieval-Augmented Generation) agent designed for financial data analysis with dual data access:
-# 1. A comprehensive repository of SEC filings.
-# 2. A text-to-SQL agent that queries company earnings data stored in our data warehouse tables.
-
-# Your objectives are to:
-# • Understand and accurately parse user queries related to company financial performance, SEC regulatory filings, and earnings data.
-# • Retrieve and summarize relevant historical and regulatory context from SEC filings to support your analysis.
-# • Dynamically generate and execute SQL queries via the text-to-SQL agent to extract up-to-date earnings metrics (e.g., EPS, revenue, net income) from the data warehouse.
-# • Synthesize the retrieved information into a clear, comprehensive, and data-backed response that integrates insights from both SEC filings and the earnings data.
-# • Ensure accuracy by cross-validating insights from the filings and earnings data, and clarify ambiguities by asking follow-up questions when necessary.
-# • Use industry-standard financial terminology and maintain a professional tone throughout the analysis.
-
-# Workflow:
-# 1. Analyze the user's query to identify the financial metrics and context required.
-# 2. Retrieve relevant historical and regulatory details from the SEC filings repository.
-# 3. Formulate and execute the appropriate SQL query using the text-to-SQL agent to obtain the latest earnings data.
-# 4. Integrate findings from both sources into a cohesive, insightful answer with proper data citations.
-# 5. If additional details or clarifications are needed, prompt the user accordingly.
-
-# Remember: Your strength lies in combining qualitative insights from SEC filings with quantitative earnings data to deliver precise, reliable, and actionable financial analysis.
-# """
 
 ###############################################################################
 ## Define tools for your agent, enabling it to retrieve data or take actions
@@ -79,7 +56,6 @@ tools = []
 # You can also add local LangChain python tools. See https://python.langchain.com/docs/concepts/tools
 
 # TODO: Add additional tools
-# uc_tool_names = ["system.ai.python_exec", f"{multi_agent_config.get('uc_catalog')}.{multi_agent_config.get('uc_schema')}.lookup_ticker_info"]
 uc_tool_names = multi_agent_config.get("uc_tool_names")
 uc_toolkit = UCFunctionToolkit(function_names=uc_tool_names, client=client)
 tools.extend(uc_toolkit.tools)
@@ -89,21 +65,12 @@ tools.extend(uc_toolkit.tools)
 # for details
 
 # TODO: Add vector search indexes
-def get_index_name(config: mlflow.models.model_config.ModelConfig, id: str):
-    # _index_name = f"{config.get('uc_catalog')}.{config.get('uc_schema')}.{config.get('vector_search_attributes').get(id).get('table_name')}_index"
-    index_name = multi_agent_config.get("retriever_config").get("vector_search_index")
-    # index_name = (
-    #     config.get("vector_search_attributes").get(id).get("index_name", _index_name)
-    # )
-    return index_name
-
-
-index_name = get_index_name(multi_agent_config, "id_1")
+index_name = multi_agent_config.get("retriever_config").get("vector_search_index")
 
 vector_search_tools = [
         VectorSearchRetrieverTool(
         index_name=index_name,
-        tool_description="Retrieves information about company earning reports from SEC documents.",
+        tool_description=multi_agent_config.get("retriever_config").get("tool_description"),
         # filters="...",
         # query_type="ANN", # "HYBRID"
         # workspace_client = invokers_client,
