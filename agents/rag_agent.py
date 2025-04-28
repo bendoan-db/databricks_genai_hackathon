@@ -26,9 +26,6 @@ from mlflow.types.agent import (
 from unitycatalog.ai.langchain.toolkit import UCFunctionToolkit
 from unitycatalog.ai.core.databricks import DatabricksFunctionClient
 
-# from databricks.sdk import WorkspaceClient
-
-
 client = DatabricksFunctionClient()
 
 ############################################
@@ -37,7 +34,9 @@ client = DatabricksFunctionClient()
 # TODO: Replace with your model serving endpoint
 multi_agent_config = mlflow.models.ModelConfig(development_config="../configs/rag_agent.yaml")
 LLM_ENDPOINT_NAME = multi_agent_config.get("rag_agent_llm_config").get("llm_endpoint_name")
-llm = ChatDatabricks(endpoint=LLM_ENDPOINT_NAME)
+llm = ChatDatabricks(endpoint=LLM_ENDPOINT_NAME, 
+                    **multi_agent_config.get("rag_agent_llm_config").get("llm_parameters")
+                    )
 
 # TODO: Update with your system prompt
 system_prompt = multi_agent_config.get("rag_agent_llm_config").get("system_prompt")
@@ -71,10 +70,9 @@ vector_search_tools = [
         VectorSearchRetrieverTool(
         index_name=index_name,
         tool_description=multi_agent_config.get("retriever_config").get("tool_description"),
+        num_results=multi_agent_config.get("retriever_config").get("parameters").get("num_results"),
+        query_type=multi_agent_config.get("retriever_config").get("parameters").get("query_type"), # "HYBRID"
         # filters="...",
-        # query_type="ANN", # "HYBRID"
-        # workspace_client = invokers_client,
-        disable_notice=True,
     )
 ]
 tools.extend(vector_search_tools)
