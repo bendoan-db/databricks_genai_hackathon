@@ -25,10 +25,7 @@ from mlflow.types.agent import (
 )
 from pydantic import BaseModel
 
-multi_agent_config = mlflow.models.ModelConfig(development_config="../configs/langgraph_multiagent_genie_pat.yaml")
-# multi_agent_config = mlflow.models.ModelConfig(development_config="../configs/project.yml")
-LLM_ENDPOINT_NAME = multi_agent_config.get("llm_endpoint_name")
-GENIE_SPACE_ID = multi_agent_config.get("genie_space_id")
+multi_agent_config = mlflow.models.ModelConfig(development_config="../configs/rag_genie_agent.yaml")
 
 
 ###################################################
@@ -37,9 +34,8 @@ GENIE_SPACE_ID = multi_agent_config.get("genie_space_id")
 
 # TODO add GENIE_SPACE_ID and a description for this space
 # You can find the ID in the URL of the genie room /genie/rooms/<GENIE_SPACE_ID>
-# GENIE_SPACE_ID = "01f00c360aa7147aa93f081d65b4c8e5"
-# GENIE_SPACE_ID = multi_agent_config.get("genie_space_id")
-genie_agent_description = "This agent can answer questions about SEC fillings."
+GENIE_SPACE_ID = multi_agent_config.get("genie_agent_config").get("genie_space_id")
+genie_agent_description = multi_agent_config.get("genie_agent_config").get("genie_agent_description")
 
 genie_agent = GenieAgent(
     genie_space_id=GENIE_SPACE_ID,
@@ -58,9 +54,7 @@ genie_agent = GenieAgent(
 ############################################
 
 # TODO: Replace with your model serving endpoint, multi-agent Genie works best with GPT 4o and GPT o1 models.
-# LLM_ENDPOINT_NAME = "ASK-BEFORE-USE-fflory-gpt-4o"
-# LLM_ENDPOINT_NAME = multi_agent_config.get("multi_agent_llm_config").get("llm_endpoint_name")[0]
-
+LLM_ENDPOINT_NAME = multi_agent_config.get("databricks_resources").get("llm_endpoint_name")
 llm = ChatDatabricks(endpoint=LLM_ENDPOINT_NAME)
 
 
@@ -77,12 +71,12 @@ tools = []
 
 
 # TODO: Add vector search indexes
-index_name = multi_agent_config.get("vector_search_index")
+index_name = multi_agent_config.get("retriever_config").get("vector_search_index")
 
 vector_search_tools = [
         VectorSearchRetrieverTool(
         index_name=index_name,
-        tool_description="This is a text-to-sql agent with access to company income statement and balance sheet data."
+        tool_description=multi_agent_config.get("retriever_config").get("tool_description")
         # filters="..."
         # query_type="ANN" # "HYBRID"
     )
@@ -90,9 +84,8 @@ vector_search_tools = [
 tools.extend(vector_search_tools)
 
 
-code_agent_description = (
-    "Retrieves information about company earning reports from SEC documents",
-)
+code_agent_description = multi_agent_config.get("retriever_config").get("tool_description")
+
 code_agent = create_react_agent(llm, tools=tools)
 
 #############################
@@ -112,14 +105,8 @@ formatted_descriptions = "\n".join(
     f"- {name}: {desc}" for name, desc in worker_descriptions.items()
 )
 
-system_prompt = f"""Decide between routing between the following workers or ending the conversation if an answer is provided. \n{formatted_descriptions}.
-    Keep in mind that you are an orchestrator responsible for coordinating these specialized agents, including a text-to-SQL agent. You must:
-	1.	Use the existing information from the Genie text-to-SQL agent’s output (or other agents’ outputs) whenever possible. Simple questions about company total assests or revenue can usually be retrieved with the Genie text-to-SQL agent. 
-	2.	Call an agent only once unless you need additional, essential information.
-	3.	Avoid redundant queries to the same agent.
-	4.	Synthesize and respond directly to the user using the data or answers already provided by the agents.
-
-Important: If the answer is already available from the previous agent outputs, do not initiate new queries to the same agent. Provide a concise, direct reply to the user, incorporating the agent results only as needed."""
+system_prompt = multi_agent_config.get("multi_agent_config").get("system_prompt").format(
+    formatted_descriptions=formatted_descriptions)
 
 options = ["FINISH"] + list(worker_descriptions.keys())
 

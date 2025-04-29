@@ -1,5 +1,0 @@
-llm_endpoint_name: "ASK-BEFORE-USE-fflory-gpt-4o"
-genie_space_id: 01f00c360aa7147aa93f081d65b4c8e5
-vector_search_index: "felixflory.databricks_genai_hackathon.sec_rag_docs_pages_index"
-databricks_resources:
-  model_name: textdataagent2

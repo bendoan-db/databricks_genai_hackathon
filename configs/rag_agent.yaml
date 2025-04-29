@@ -32,7 +32,6 @@ rag_agent_llm_config:
         Remember: Your strength lies in combining qualitative insights from SEC filings with quantitative earnings data to deliver precise, reliable, and actionable financial analysis."
 
 retriever_config:
-  vector_search_endpoint_name: one-env-shared-endpoint-1
   vector_search_index: "felixflory.databricks_genai_hackathon.sec_rag_docs_pages_index"
   tool_description: "Retrieves information about company earning reports from SEC documents."
   parameters:

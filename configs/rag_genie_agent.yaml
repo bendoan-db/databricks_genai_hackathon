@@ -1,0 +1,29 @@
+databricks_resources:
+  model_name: rag_genie_agent
+  mlflow_experiment_name: databricks_genai_hackathon_rag_genie_agent
+  llm_endpoint_name: "ASK-BEFORE-USE-fflory-gpt-4o"
+  secret_scope_name: "felix-flory"
+  secret_key_name: DBPAT
+
+genie_agent_config:
+  genie_space_id: 01f00c360aa7147aa93f081d65b4c8e5
+  genie_agent_description: "This agent can answer questions about SEC fillings."
+
+
+retriever_config:
+  vector_search_index: "felixflory.databricks_genai_hackathon.sec_rag_docs_pages_index"
+  tool_description: "Retrieves information about company earning reports from SEC documents."
+  parameters:
+      num_results: 2
+      query_type: ANN
+
+multi_agent_config:
+  llm_endpoint_name: ASK-BEFORE-USE-fflory-gpt-4o
+  llm_parameters:
+    max_tokens: 1500
+    temperature: 0.01
+  system_prompt: "Decide between routing between the following workers or ending the conversation if an answer is provided. \n{formatted_descriptions}.\n Keep in mind that you are an orchestrator responsible for coordinating these specialized agents, including a text-to-SQL agent. You must:\n
+	1.	Use the existing information from the Genie text-to-SQL agent’s output (or other agents’ outputs) whenever possible. Simple questions about company total assests or revenue can usually be retrieved with the Genie text-to-SQL agent. \n
+	2.	Call an agent only once unless you need additional, essential information.\n
+	3.	Avoid redundant queries to the same agent.\n
+	4.	Synthesize and respond directly to the user using the data or answers already provided by the agents.\n\n If the answer is already available from the previous agent outputs, do not initiate new queries to the same agent. Provide a concise, direct reply to the user, incorporating the agent results only as needed."
