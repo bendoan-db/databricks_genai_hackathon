@@ -1,7 +1,8 @@
-  mlflow==2.21.3
+  mlflow==2.22.0
   langgraph==0.3.4
   uv==0.6.10
-  databricks-agents==0.18.1
+  databricks-sdk==0.50.0
+  databricks-agents==0.21.0
   databricks-langchain==0.4.1
   databricks-vectorsearch==0.55
   unitycatalog-langchain==0.2.0

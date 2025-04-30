@@ -5,7 +5,7 @@
 
 # COMMAND ----------
 
-# %pip install mlflow mlflow[databricks] databricks-agents
+# %pip install mlflow mlflow[databricks] databricks-sdk==0.50.0 databricks-agents==0.21.0
 # dbutils.library.restartPython()
 
 # COMMAND ----------
@@ -77,25 +77,25 @@ display(input_df)
 
 # These documents can be a Pandas DataFrame or a Spark DataFrame with two columns: 'content' and 'doc_uri'.
 # template code to specify input data
-_ = pd.DataFrame.from_records(
-    [
-      {
-        'content': f"""
-            Apache Spark is a unified analytics engine for large-scale data processing. It provides high-level APIs in Java,
-            Scala, Python and R, and an optimized engine that supports general execution graphs. It also supports a rich set
-            of higher-level tools including Spark SQL for SQL and structured data processing, pandas API on Spark for pandas
-            workloads, MLlib for machine learning, GraphX for graph processing, and Structured Streaming for incremental
-            computation and stream processing.
-        """,
-        'doc_uri': 'https://spark.apache.org/docs/3.5.2/'
-      },
-      {
-        'content': f"""
-            Spark’s primary abstraction is a distributed collection of items called a Dataset. Datasets can be created from Hadoop InputFormats (such as HDFS files) or by transforming other Datasets. Due to Python’s dynamic nature, we don’t need the Dataset to be strongly-typed in Python. As a result, all Datasets in Python are Dataset[Row], and we call it DataFrame to be consistent with the data frame concept in Pandas and R.""",
-        'doc_uri': 'https://spark.apache.org/docs/3.5.2/quick-start.html'
-      }
-    ]
-)
+# _ = pd.DataFrame.from_records(
+#     [
+#       {
+#         'content': f"""
+#             Apache Spark is a unified analytics engine for large-scale data processing. It provides high-level APIs in Java,
+#             Scala, Python and R, and an optimized engine that supports general execution graphs. It also supports a rich set
+#             of higher-level tools including Spark SQL for SQL and structured data processing, pandas API on Spark for pandas
+#             workloads, MLlib for machine learning, GraphX for graph processing, and Structured Streaming for incremental
+#             computation and stream processing.
+#         """,
+#         'doc_uri': 'https://spark.apache.org/docs/3.5.2/'
+#       },
+#       {
+#         'content': f"""
+#             Spark’s primary abstraction is a distributed collection of items called a Dataset. Datasets can be created from Hadoop InputFormats (such as HDFS files) or by transforming other Datasets. Due to Python’s dynamic nature, we don’t need the Dataset to be strongly-typed in Python. As a result, all Datasets in Python are Dataset[Row], and we call it DataFrame to be consistent with the data frame concept in Pandas and R.""",
+#         'doc_uri': 'https://spark.apache.org/docs/3.5.2/quick-start.html'
+#       }
+#     ]
+# )
 
 # COMMAND ----------
 
@@ -139,10 +139,6 @@ question_guidelines = """
 # Additional Guidelines
 - Questions should be succinct, and human-like
 """
-
-# COMMAND ----------
-
-projectConfig.llm_endpoint_names[0]
 
 # COMMAND ----------
 
@@ -194,10 +190,11 @@ experiment = set_mlflow_experiment(projectConfig.mlflow_experiment_name)
 
 # COMMAND ----------
 
+llm_endpoint = projectConfig.llm_endpoint_names[0]
 # Evaluate the model using the newly generated evaluation set. After the function call completes, click the UI link to see the results. You can use this as a baseline for your agent.
-with mlflow.start_run(run_name="Synthetic Evaluation 2"):
+with mlflow.start_run(run_name="Synthetic Evaluation"):
   results = mlflow.evaluate(
-    model=f"endpoints:/{projectConfig.llm_endpoint_names[0]}",
+    model=f"endpoints:/{llm_endpoint}",
     data=evals,
     model_type="databricks-agent"
   )

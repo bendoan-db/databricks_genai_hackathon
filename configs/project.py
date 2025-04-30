@@ -158,15 +158,8 @@ def get_project_config(project_yml_path = None, indicator_variable='PROJECT_ROOT
 
 
 if __name__ == "__main__":
-    # %pip install -q --upgrade pydantic
-    # %restart_python
-    import sys, os
-    sys.path.append(os.path.abspath('..'))
-    from configs.project import ProjectConfig
-    import yaml
+    from configs.project import get_project_config
 
-    with open("../configs/project.yml", "r") as file:
-        data = yaml.safe_load(file)
-
-    projectConfig = ProjectConfig(**data)
-    projectConfig.model_dump()
+    
+    projectConfig = get_project_config()
+    print(projectConfig.model_dump())

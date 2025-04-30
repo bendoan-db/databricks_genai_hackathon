@@ -8,13 +8,13 @@ For a standard databricks runtime please [install](https://docs.databricks.com/a
 # For admins
 
 - ideally, hackathon users should have permissions to create their individual unity catalog schema. This greatly reduces the need to specify individual assests like tablenames, uc-function names, models etc. 
-- yaml files do not get cloned TODO specify defaults in the pydantic model itself and users can edit those defaults
-- TODO if no internet access the tables have to be setup differently (load local parquet files to pandas and write to delta table)
+- caution: yaml files do not get cloned, users have to copy and edit them 
 
 # Project Setup
 
  - edit [configs/project.yml](configs/project.yml) to specify your settings
  - run the project setup notebook  [setup_env/workspace_assets.ipynb](setup_env/workspace_assets.ipynb)
+ - set up the data using the notebooks in the [data](data) folder
 
  # Notebooks
 

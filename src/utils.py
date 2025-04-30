@@ -1,26 +1,22 @@
 import mlflow
 from databricks.sdk import WorkspaceClient
-import sys, os, yaml
-import urllib.request
-import pandas as pd 
-from configs.project import get_project_config, get_project_root_path
+from configs.project import get_project_config
 
 
 projectConfig = get_project_config()
-
-# sys.path.append(os.path.abspath('..'))
-# from configs.project import ProjectConfig
-
-# with open("../configs/project.yml", "r") as file:
-#     data = yaml.safe_load(file)
-
-# projectConfig = ProjectConfig(**data)
-# projectConfig.dict()
-
 mlflow_experiment_base_path = projectConfig.mlflow_experiment_base_path
 
-def set_mlflow_experiment(experiment_tag):
+def set_mlflow_experiment(experiment_name):
     w = WorkspaceClient()
     w.workspace.mkdirs(f"/Workspace/{mlflow_experiment_base_path}")
-    experiment_path = f"/{mlflow_experiment_base_path}/{experiment_tag}"
+    experiment_path = f"/{mlflow_experiment_base_path}/{experiment_name}"
     return mlflow.set_experiment(experiment_path)
+
+
+if __name__ == "__main__":
+    from configs.project import get_project_config
+    from src.utils import set_mlflow_experiment
+
+    projectConfig = get_project_config()
+    experiment = set_mlflow_experiment(projectConfig.mlflow_experiment_name)
+    print(f"Experiment info:\n{experiment.to_proto()}")

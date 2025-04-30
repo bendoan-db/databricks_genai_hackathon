@@ -1,3 +1,0 @@
-llm_endpoint_name: "databricks-meta-llama-3-3-70b-instruct"
-genie_space_id: "01f00c360aa7147aa93f081d65b4c8e5"#"your genie space id"
-vector_search_index: "felixflory.databricks_genai_hackathon.sec_rag_docs_pages_index"

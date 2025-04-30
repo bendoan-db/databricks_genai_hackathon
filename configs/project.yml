@@ -30,12 +30,10 @@ genie_tables:
   id_1:
     table_name: balance_sheet
     local_clone_path: "data/balance_sheet.parquet"
-    # name: balance_sheet
     url: "https://raw.githubusercontent.com/fflory/databricks_genai_hackathon/main/data/balance_sheet.parquet"
   id_2:
     table_name: income_statement
     local_clone_path: "data/income_statement.parquet"
-    # name: income_statement
     url: "https://raw.githubusercontent.com/fflory/databricks_genai_hackathon/main/data/income_statement.parquet"
 
 
