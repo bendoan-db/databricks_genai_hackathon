@@ -1,5 +1,11 @@
 # databricks_genai_hackathon
 
+# Overview
+
+This repository provides a complete example implementing a RAG agent on Databricks. It uses the databricks agent framework, the Langchain/Langgraph integration as well as Vector Search and Unitiy Catalog integrations. The examples are based on small datasets including prepared text chunks from publicly available SEC filings, mock structured data for a few included companies. It also includes an evaluation dataset with question/answer pairs from the financebench repository. 
+
+The agents are deployed on Databrick Model serving and are monitored with Databrick model monitoring. 
+
 # Cluster Config
 
 On Databricks use a serverless cluster or a standard cluster with runtime 15.4 LTS or higher. A Machine Learning Runtime is not recommended. 
