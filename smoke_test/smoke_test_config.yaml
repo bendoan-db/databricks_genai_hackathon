@@ -3,7 +3,7 @@ databricks_config:
   schema: hackathon_test
   mlflow_experiment_name: hackathon_smoke_test
 genie_space_config:
-  genie_space_id: 01f034bd9471123faba98a3b201d387b # You can find the ID in the URL of the genie room /genie/rooms/<GENIE_SPACE_ID>
+  genie_space_id: 01f034fd8d961ac3a9b37325a267ceac # You can find the ID in the URL of the genie room /genie/rooms/<GENIE_SPACE_ID>
   genie_space_description: This genie space contains data on transactions from custommers # update this with a description of your genie room
 vector_search_config: 
   document_table_name: smoke_test_documents
