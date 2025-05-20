@@ -1,6 +1,6 @@
 databricks_config:
-  catalog: doan
-  schema: hackathon_test
+  catalog: users
+  schema: ben_doan
   mlflow_experiment_name: hackathon_smoke_test
 genie_space_config:
   genie_space_id: 01f034fd8d961ac3a9b37325a267ceac # You can find the ID in the URL of the genie room /genie/rooms/<GENIE_SPACE_ID>
@@ -14,7 +14,7 @@ vector_search_config:
 
 agent_config:
   uc_agent_name: smoketest_agent
-  llm_endpoint_name: doan-gpt-4o
+  llm_endpoint_name: databricks-claude-3-7-sonnet
   llm_parameters:
     max_tokens: 1500
     temperature: 0.0
