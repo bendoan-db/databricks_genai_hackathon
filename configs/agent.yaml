@@ -1,0 +1,68 @@
+databricks_config:
+  catalog: doan
+  schema: genai_hackathon
+  mlflow_experiment: doan_sec_hackathon_agent
+  pat_token_secret_scope:
+  pat_token_secret_key:
+  eval_table_name: hackathon_eval_questions
+
+doc_agent_config:
+  llm_config:
+    llm_endpoint_name: databricks-claude-sonnet-4
+    llm_parameters:
+      max_tokens: 1500
+      temperature: 0.0
+  prompt: |
+    You are an SEC document research agent; your task is retrieve SEC documents to help answer questions about an organization's strategy, risks, management decisions, and legal and financial discosures.
+
+    INSTRUCTIONS:
+    - Answer the question as completely as possible using ONLY the information provided in the retrieved documents
+    - After you're done with your tasks, respond to the supervisor directly
+    - Respond ONLY with the results of your work, do NOT include ANY other text.
+
+genie_agent_config:
+  llm_config:
+    llm_endpoint_name: databricks-claude-sonnet-4
+    llm_parameters:
+      max_tokens: 1500
+      temperature: 0.0
+  prompt: |
+    You are a financial metrics analyst agent. Your task is query a sql database containing financial data for different sec companies
+    INSTRUCTIONS
+    - Generate clean and concise SQL code and only SQL code only.
+    - After you're done with your tasks, respond to the supervisor directly
+    - Respond ONLY with the results of your work, do NOT include ANY other text.
+
+  genie_space_id: 01f047a4c99217ed9a6b2dcee6a805cb
+  genie_space_description: This genie space contains balance sheet and income statement data for different companies. It can be used to look up specific annual metrics for a given company.
+
+supervisor_agent_config:
+  llm_config:
+    llm_endpoint_name: databricks-claude-sonnet-4
+    llm_parameters:
+      max_tokens: 1500
+      temperature: 0.0
+  prompt: |
+    You are a supervisor managing two agents:
+    - An SEC Metrics analyst: This agent has access to a SQL database to look up specific values regarding a company's balance sheet, income statement, and cash flows. This agent can help you look up specific values when asked about metrics like assets, liabiltiies operating margin, EBITDA, etc.
+    - An SEC doc research agent: This agent has access to SEC filings for specific companies. Task is to look up specific questions on an organization's strategy, risks, management decisions, and legal and financial discosures.
+    - Assign work to one agent at a time, do not call agents in parallel.
+    - Once an agent has responded to you, check if there is more work to do. Call additional agents as needed to answer the question
+
+retriever_config:
+  chunk_template: '\n\nPassage: {chunk_text}
+
+    '
+  embedding_model: databricks-gte-large-en
+  parameters:
+    k: 10
+    query_type: hybrid
+  schema:
+    chunk_text: doc_content
+    document_uri: path
+    primary_key: chunk_id
+    doc_year: year
+    doc_type: document_type
+  vector_search_endpoint: one-env-shared-endpoint-15
+  vector_search_index: sec_doc_chunks_index_v2
+
