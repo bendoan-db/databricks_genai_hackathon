@@ -12,6 +12,18 @@
 
 # COMMAND ----------
 
+import os
+from dbruntime.databricks_repl_context import get_context
+
+TOKEN = get_context().apiToken
+HOSTNAME = get_context().browserHostName
+USERNAME = get_context().user
+
+os.environ['DATABRICKS_TOKEN'] = TOKEN
+os.environ['DATABRICKS_URL'] = get_context().apiUrl
+
+# COMMAND ----------
+
 import yaml
 
 with open('./configs/agent.yaml', 'r') as file:
@@ -31,6 +43,10 @@ eval_table=databricks_config['eval_table_name']
 vector_search_endpoint = retriever_config['vector_search_endpoint']
 vector_search_index = retriever_config['vector_search_index']
 embedding_model = retriever_config['embedding_model']
+
+doc_agent_config = config["doc_agent_config"]
+genie_agent_config = config["genie_agent_config"]
+supervisor_config = config["supervisor_agent_config"]
 
 # COMMAND ----------
 
@@ -52,7 +68,7 @@ mlflow.set_experiment(experiment_fqdn)
 
 # COMMAND ----------
 
-# MAGIC %run ./01b_genie_agent
+# MAGIC %run ./01a_unstructured_retrieval_agent
 
 # COMMAND ----------
 
@@ -66,7 +82,7 @@ example_input = {
         "messages": [
             {
                 "role": "user",
-                "content": "How did APPL's operating margin change between 2020 and 2021? What factors contributed to this?",
+                "content": "What was AAPL's most popular product in 2022?",
             }
         ]
     }
@@ -91,20 +107,52 @@ display(eval_dataset)
 
 # COMMAND ----------
 
+# MAGIC %md
+# MAGIC ## Create Guidelines
+
+# COMMAND ----------
+
+figure_correctness_guideline = """You are an impartial judge tasked with verifying the numerical accuracy of a generated response compared to a ground truth value. Your goal is to determine whether the generated number is numerically correct within two decimal places of the ground truth.
+
+Evaluation Rules:
+* Round both the generated value and the ground truth to two decimal places.
+* If the two rounded values are exactly equal, the answer is Correct.
+* If the rounded values differ, the answer is Incorrect."""
+
+# COMMAND ----------
+
+from mlflow.types.agent import (
+    ChatAgentChunk,
+    ChatAgentMessage,
+    ChatAgentResponse,
+    ChatContext,
+    ChatAgentRequest
+)
+
 from mlflow.genai.scorers import (
     Correctness,
     RelevanceToQuery,
     Safety,
+    Guidelines
 )
+
+from evaluation_utils.figure_correctness import figure_correctness
+
+def my_predict_fn(messages): # the signature corresponds to the keys in the "inputs" dict
+  return AGENT.predict(
+    messages=[ChatAgentMessage(**message) for message in messages]
+  )
 
 # Run evaluation with predefined scorers
 eval_results = mlflow.genai.evaluate(
-    data=eval_dataset,
-    predict_fn=AGENT.predict,
+    data=eval_dataset.toPandas(),
+    predict_fn=my_predict_fn,
     scorers=[
         Correctness(),
         RelevanceToQuery(),
         Safety(),
+        figure_correctness,
+        Guidelines(name="figure_correctness_guideline", guidelines=figure_correctness_guideline),
     ],
 )
 
@@ -128,21 +176,19 @@ from mlflow.models.resources import (
 
 with mlflow.start_run(run_name="sec_rag_doan"):
     logged_chain_info = mlflow.pyfunc.log_model(
-        python_model=os.path.join(os.getcwd(), "01_sec_agent"),
-        model_config=os.path.join(os.getcwd(), "config.yaml"),  # Chain configuration set in 00_config
+        python_model=os.path.join(os.getcwd(), "01a_unstructured_retrieval_agent"),
+        model_config=os.path.join(os.getcwd(), "configs/agent.yaml"), 
         artifact_path="agent",  # Required by MLflow
         code_paths=[os.path.join(os.getcwd(), "tools")],
         input_example=example_input,
         resources=[
         DatabricksVectorSearchIndex(index_name=f"{catalog}.{schema}.{vector_search_index}"),
-        DatabricksServingEndpoint(endpoint_name="doan-gpt-4o"),
-        DatabricksServingEndpoint(endpoint_name="doan-o3"),
-        DatabricksServingEndpoint(endpoint_name="databricks-meta-llama-3-3-70b-instruct"),
-        DatabricksServingEndpoint(endpoint_name="databricks-claude-3-7-sonnet"),
+        DatabricksServingEndpoint(endpoint_name=doc_agent_config["llm_config"]["llm_endpoint_name"]),
+        DatabricksServingEndpoint(endpoint_name=genie_agent_config["llm_config"]["llm_endpoint_name"]),
+        DatabricksServingEndpoint(endpoint_name=supervisor_config["llm_config"]["llm_endpoint_name"]),
         DatabricksServingEndpoint(endpoint_name=embedding_model)
         ],
         pip_requirements=["-r requirements.txt"],
-        example_no_conversion=True,  # Required by MLflow to use the input_example as the chain's schema
     )
 
 # COMMAND ----------
