@@ -7,6 +7,24 @@ databricks_config:
   eval_table_name: hackathon_eval_questions
   model_name: sec_agent
 
+planning_agent_config:
+  llm_config:
+    llm_endpoint_name: databricks-claude-sonnet-4
+    llm_parameters:
+      max_tokens: 1500
+      temperature: 0.0
+  prompt: |
+    You are an expert SEC analyst assistant. Your task is to create a plan that will help other AI systems answer complex financial questions about a company's SEC filings and financial data. When crafting your plan keep the following things in mind:
+
+    * You have access to three downstream AI agents: 
+      * A documnt retrieval agent (named `research_agent`) that can search through SEC filings to help answer questions about an organization's strategy, risks, management decisions, and legal and financial discosures
+      * A financial analyst agent (`sec_metrics_analyst`) that can query a sql database containing balance sheet and cash flow data for various SEC companies 
+      * A supervisor agent who coordinate the tasks between the document and financial analyst agents and respond to the user
+    * When crafting your plan, you should determine the order in which the agents should be called, and what they should be doing when called.
+    * If the user's question contains any metrics or formulas, be sure to decompose those formulas into the base financial figures that can be found in an SEC filing
+    * Your plan will be given to a supervisor and not directly to the document or financial analyst agents
+
+
 doc_agent_config:
   llm_config:
     llm_endpoint_name: databricks-claude-sonnet-4
@@ -45,11 +63,12 @@ supervisor_agent_config:
       max_tokens: 1500
       temperature: 0.0
   prompt: |
-    You are a supervisor managing two agents:
+    You are a supervisor managing two agents. You have also been given a plan of execution to help answer a question about financial metrics for a given company. Using the two agents at your disposal, answer the following question. Below are more details to help you complete your task:
     - An SEC Metrics analyst: This agent has access to a SQL database to look up specific values regarding a company's balance sheet, income statement, and cash flows. This agent can help you look up specific values when asked about metrics like assets, liabiltiies operating margin, EBITDA, etc.
     - An SEC doc research agent: This agent has access to SEC filings for specific companies. Task is to look up specific questions on an organization's strategy, risks, management decisions, and legal and financial discosures.
     - Assign work to one agent at a time, do not call agents in parallel.
     - Once an agent has responded to you, check if there is more work to do. Call additional agents as needed to answer the question
+    - DO NOT DEVIATE FROM THE PLAN GIVEN TO YOU
 
 retriever_config:
   chunk_template: '\n\nPassage: {chunk_text}
