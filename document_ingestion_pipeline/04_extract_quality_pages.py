@@ -1,4 +1,9 @@
 # Databricks notebook source
+# MAGIC %md
+# MAGIC # Page Quality Extraction 
+
+# COMMAND ----------
+
 # MAGIC %pip install -q pyyaml
 
 # COMMAND ----------

@@ -1,4 +1,18 @@
 # Databricks notebook source
+# MAGIC %md
+# MAGIC # Entity Resolution on Extracted Entities 
+# MAGIC ![](./images/Screenshot 2025-06-16 at 9.47.53 PM.png)
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC # Process
+# MAGIC 1. Build an index of known entities in your organization
+# MAGIC 2. For a given metadata label, use hybrid search to retrieve the top 3 known entities that most closely resemble the label
+# MAGIC 3. Pass the top 3 entities and the target label to a selector LLM
+
+# COMMAND ----------
+
 # MAGIC %pip install -q databricks-vectorsearch pyyaml
 # MAGIC dbutils.library.restartPython()
 
@@ -108,7 +122,7 @@ def vector_search_lookup(texts: pd.Series) -> pd.Series:
 # COMMAND ----------
 
 silver_docs_with_vectors = silver_sec_docs.withColumn("possible_entities", vector_search_lookup(col("company")))
-#display(silver_docs_with_vectors)
+display(silver_docs_with_vectors)
 
 # COMMAND ----------
 
@@ -118,6 +132,10 @@ silver_docs_with_vectors.write.mode("overwrite").saveAsTable(f"{catalog}.{schema
 # COMMAND ----------
 
 display(spark.table(f"{catalog}.{schema}.{er_temp_table}"))
+
+# COMMAND ----------
+
+print(prompt)
 
 # COMMAND ----------
 

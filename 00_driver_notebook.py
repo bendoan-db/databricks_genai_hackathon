@@ -70,7 +70,7 @@ mlflow.set_experiment(experiment_fqdn)
 
 # COMMAND ----------
 
-# MAGIC %run ./03_deep_research_agent
+# MAGIC %run ./01a_unstructured_retrieval_agent
 
 # COMMAND ----------
 
