@@ -53,7 +53,7 @@ genie_agent_config:
     - After you're done with your tasks, respond to the supervisor directly
     - Respond ONLY with the results of your work, do NOT include ANY other text.
 
-  genie_space_id: 01f047a4c99217ed9a6b2dcee6a805cb
+  genie_space_id: 01f04a6962af17838964683c001438ac
   genie_space_description: This genie space contains balance sheet and income statement data for different companies. It can be used to look up specific annual metrics for a given company.
 
 supervisor_agent_config:
@@ -84,6 +84,6 @@ retriever_config:
     primary_key: chunk_id
     doc_year: year
     doc_type: document_type
-  vector_search_endpoint: one-env-shared-endpoint-15
+  vector_search_endpoint: doan-endpoint
   vector_search_index: sec_doc_chunks_index_v2
 

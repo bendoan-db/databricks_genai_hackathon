@@ -113,7 +113,7 @@ silver_docs_with_vectors = silver_sec_docs.withColumn("possible_entities", vecto
 # COMMAND ----------
 
 #we can't run ai_query and scalar udfs on the same dataframe, so we have to save it and load it back in
-silver_docs_with_vectors.write.saveAsTable(f"{catalog}.{schema}.{er_temp_table}")
+silver_docs_with_vectors.write.mode("overwrite").saveAsTable(f"{catalog}.{schema}.{er_temp_table}")
 
 # COMMAND ----------
 
@@ -142,7 +142,7 @@ display(gold_docs)
 
 # COMMAND ----------
 
-gold_docs.write.saveAsTable(f"{catalog}.{schema}.{gold_table}")
+gold_docs.write.mode("overwrite").saveAsTable(f"{catalog}.{schema}.{gold_table}")
 
 # COMMAND ----------
 

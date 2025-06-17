@@ -12,17 +12,6 @@
 
 # COMMAND ----------
 
-import os
-from dbruntime.databricks_repl_context import get_context
-
-HOSTNAME = get_context().browserHostName
-USERNAME = get_context().user
-
-os.environ['DATABRICKS_TOKEN'] = dbutils.secrets.get(scope="doan-demos", key="databricks-pat")
-os.environ['DATABRICKS_URL'] = get_context().apiUrl
-
-# COMMAND ----------
-
 import yaml
 
 with open('./configs/agent.yaml', 'r') as file:
@@ -38,6 +27,8 @@ schema=databricks_config['schema']
 mlflow_experiment=databricks_config['mlflow_experiment']
 eval_table=databricks_config['eval_table_name']
 model_name=databricks_config['model_name']
+secret_scope=databricks_config['pat_token_secret_scope']
+secret_key=databricks_config['pat_token_secret_key']
 
 #load vs configs
 vector_search_endpoint = retriever_config['vector_search_endpoint']
@@ -47,6 +38,17 @@ embedding_model = retriever_config['embedding_model']
 doc_agent_config = config["doc_agent_config"]
 genie_agent_config = config["genie_agent_config"]
 supervisor_config = config["supervisor_agent_config"]
+
+# COMMAND ----------
+
+import os
+from dbruntime.databricks_repl_context import get_context
+
+HOSTNAME = get_context().browserHostName
+USERNAME = get_context().user
+
+os.environ['DATABRICKS_TOKEN'] = dbutils.secrets.get(scope=secret_scope, key=secret_key)
+os.environ['DATABRICKS_URL'] = get_context().apiUrl
 
 # COMMAND ----------
 
@@ -82,7 +84,7 @@ example_input = {
         "messages": [
             {
                 "role": "user",
-                "content": "How did APPL's operating margin change between 2020 and 2021? What factors contributed to this?",
+                "content": "How did APPL's free cash flow change between 2020 and 2021? What factors contributed to this?",
             }
         ]
     }
@@ -219,7 +221,7 @@ agents.deploy(
     environment_vars={
         "DATABRICKS_URL": get_context().apiUrl,
         "DATABRICKS_TOKEN": dbutils.secrets.get(
-            scope="doan-demos", key="databricks-pat"
+            scope=secret_scope, key=secret_key
         ),
     },
 )

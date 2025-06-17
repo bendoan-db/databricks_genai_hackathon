@@ -27,15 +27,15 @@ embedding_source_column = entity_resolution_config['embedding_source_column']
 
 # COMMAND ----------
 
-.replace("document_ingestion_pipeline", "data/pdf_docs")
-
-# COMMAND ----------
-
 import os
 
 #load csv with company names
 file_path = (os.getcwd().replace("document_ingestion_pipeline", "data/sec_companies.csv"))
-company_names = spark.read.format("csv").option("header", "true").load("file:" + file_path)
+file_path
+
+# COMMAND ----------
+
+company_names = spark.read.format("csv").option("header", "true").load("file://" + file_path)
 display(company_names)
 
 # COMMAND ----------

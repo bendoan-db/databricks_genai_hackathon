@@ -6,7 +6,6 @@ databricks_config:
 
 #configs for metadata extraction steps
 metadata_extraction_config:
-  volume_path: /Volumes/field_ai_examples/alphaleger/financebench/pdf/
   bronze_table: 
     name: sec_docs_bronze
   silver_table: 
@@ -27,7 +26,7 @@ metadata_extraction_config:
 entity_resolution_config:
   entity_table: company_entities
   vector_search_index: company_entities_index
-  vector_search_endpoint: one-env-shared-endpoint-15
+  vector_search_endpoint: doan-endpoint
   embedding_model: databricks-gte-large-en
   vector_search_id_column: id
   embedding_source_column: company_name
@@ -97,10 +96,10 @@ chunk_extraction_config:
       - doc_summarization
       - page_number
     summarization_llm_config:
-      llm_endpoint_name: doan-gpt-4o
+      llm_endpoint_name: databricks-meta-llama-3-3-70b-instruct
       prompt: "The following document chunk was extracted from an SEC filing (10k, 8k, 10q, etc.). Summarize and situate the chunk in the larger context of an SEC doc. You should return a concise but descriptive summarization. Additionally, if the chunk contains any financial information, you should clearly highlight the financial metrics, data, and figures in the chunk. Any financial metrics should be reported in a structured, easily consumable format. Additionally, you should identify the SEC filing items and section that the chunk falls into, if possible, in your summarization. RETURN ONLY THE SUMMARIZATION AND NOTHING ELSE. Below is some additional information to aid in your summarization."
     vector_search_config:
-      endpoint_name: one-env-shared-endpoint-15
+      endpoint_name: doan-endpoint
       index_name: sec_doc_chunks_index_v2
       id_column: chunk_id
       text_column: doc_content
@@ -109,7 +108,7 @@ chunk_extraction_config:
 
 #generation configs
 llm_config:
-  llm_endpoint_name: doan-gpt-4o
+  llm_endpoint_name: databricks-claude-sonnet-4
   llm_parameters:
     max_tokens: 1500
     temperature: 0.0
