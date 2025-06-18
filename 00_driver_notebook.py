@@ -52,6 +52,10 @@ os.environ['DATABRICKS_URL'] = get_context().apiUrl
 
 # COMMAND ----------
 
+os.environ['DATABRICKS_TOKEN']
+
+# COMMAND ----------
+
 import mlflow
 from dbruntime.databricks_repl_context import get_context
 
@@ -70,7 +74,7 @@ mlflow.set_experiment(experiment_fqdn)
 
 # COMMAND ----------
 
-# MAGIC %run ./01a_unstructured_retrieval_agent
+# MAGIC %run ./02_genie_agent
 
 # COMMAND ----------
 
@@ -84,7 +88,33 @@ example_input = {
         "messages": [
             {
                 "role": "user",
-                "content": "How did APPL's free cash flow change between 2020 and 2021? What factors contributed to this?",
+                "content": "What was the quick ratio for American Express in 2022, and what factors drove this?",
+            }
+        ]
+    }
+
+# COMMAND ----------
+
+response = AGENT.predict(example_input)
+print(response.messages[0].content)
+
+# COMMAND ----------
+
+# MAGIC %run ./03_deep_research_agent
+
+# COMMAND ----------
+
+from IPython.display import display, Image
+
+display(Image(AGENT.agent.get_graph().draw_mermaid_png()))
+
+# COMMAND ----------
+
+example_input = {
+        "messages": [
+            {
+                "role": "user",
+                "content": "What was the quick ratio for American Express in 2022, and what factors drove this?",
             }
         ]
     }

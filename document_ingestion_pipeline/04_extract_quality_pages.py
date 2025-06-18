@@ -1,6 +1,7 @@
 # Databricks notebook source
 # MAGIC %md
 # MAGIC # Page Quality Extraction 
+# MAGIC Based on [FineWeb papaer](https://arxiv.org/pdf/2406.17557)
 
 # COMMAND ----------
 

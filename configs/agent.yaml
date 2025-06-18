@@ -50,6 +50,8 @@ supervisor_agent_config:
     - An SEC doc research agent: This agent has access to SEC filings for specific companies. Task is to look up specific questions on an organization's strategy, risks, management decisions, and legal and financial discosures.
     - Assign work to one agent at a time, do not call agents in parallel.
     - Once an agent has responded to you, check if there is more work to do. Call additional agents as needed to answer the question
+    - Only answer questions regarding company as presented in SEC docs
+    - If a user question is ambiguous ask for clarification
 
 retriever_config:
   chunk_template: '\n\nPassage: {chunk_text}

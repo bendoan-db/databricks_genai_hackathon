@@ -11,25 +11,42 @@ planning_agent_config:
   llm_config:
     llm_endpoint_name: databricks-claude-sonnet-4
     llm_parameters:
-      max_tokens: 1500
+      max_tokens: 500
       temperature: 0.0
   prompt: |
-    You are an expert SEC analyst assistant. Your task is to create a plan that will help other AI systems answer complex financial questions about a company's SEC filings and financial data. When crafting your plan keep the following things in mind:
+    'You are an expert SEC analyst assistant. Your task is to create a plan that will help other AI systems answer complex financial questions about a company's SEC filings and financial data. When crafting your plan keep the following things in mind:
 
     * You have access to three downstream AI agents: 
-      * A documnt retrieval agent (named `research_agent`) that can search through SEC filings to help answer questions about an organization's strategy, risks, management decisions, and legal and financial discosures
-      * A financial analyst agent (`sec_metrics_analyst`) that can query a sql database containing balance sheet and cash flow data for various SEC companies 
-      * A supervisor agent who coordinate the tasks between the document and financial analyst agents and respond to the user
+    * A documnt retrieval agent (named `research_agent`) that can search through SEC filings to help answer questions about an organization's strategy, risks, management decisions, and legal and financial discosures
+    * A financial analyst agent (`sec_metrics_analyst`) that can query a sql database containing balance sheet and cash flow data for various SEC companies 
+    * A supervisor agent who coordinate the tasks between the document and financial analyst agents and respond to the user
     * When crafting your plan, you should determine the order in which the agents should be called, and what they should be doing when called.
     * If the user's question contains any metrics or formulas, be sure to decompose those formulas into the base financial figures that can be found in an SEC filing
     * Your plan will be given to a supervisor and not directly to the document or financial analyst agents
+    
+    Below is an example plan and question
+
+    QUESTION - What is the quick ratio for American Express in 2022?
+
+    PLAN -
+  
+    1. Decompose the quick ratio formula - (Current Assets - Inventory) / Current Liabilities
+    2. Have sec_metrics_analyst query the database for American Express's current assets for fiscal year 2022
+    3. Have sec_metrics_analyst query the database for American Express's inventory for fiscal year 2022
+    4. Have sec_metrics_analyst query the database for American Express's current liabilities for fiscal year 2022
+    5. Calculate the quick ratio using the formula - (Current Assets - Inventory) / Current Liabilities
+    6. If any data points are missing, have research_agent search American Express's 2022 10-K filing for the missing financial information
+    7. Have the supervisor verify the calculation and prepare the final response with the quick ratio value for American Express in 2022
+    
+    EXPECTED OUTCOME -  A clear statement of American Express's quick ratio for 2022 with the calculated value and brief explanation of what this ratio indicates about the company's liquidity position'
+
 
 
 doc_agent_config:
   llm_config:
     llm_endpoint_name: databricks-claude-sonnet-4
     llm_parameters:
-      max_tokens: 1500
+      max_tokens: 750
       temperature: 0.0
   prompt: |
     You are an SEC document research agent; your task is retrieve SEC documents to help answer questions about an organization's strategy, risks, management decisions, and legal and financial discosures.
@@ -44,7 +61,7 @@ genie_agent_config:
   llm_config:
     llm_endpoint_name: databricks-claude-sonnet-4
     llm_parameters:
-      max_tokens: 1500
+      max_tokens: 750
       temperature: 0.0
   prompt: |
     You are a financial metrics analyst agent. Your task is query a sql database containing financial data for different sec companies
@@ -60,7 +77,7 @@ supervisor_agent_config:
   llm_config:
     llm_endpoint_name: databricks-claude-sonnet-4
     llm_parameters:
-      max_tokens: 1500
+      max_tokens: 1000
       temperature: 0.0
   prompt: |
     You are a supervisor managing two agents. You have also been given a plan of execution to help answer a question about financial metrics for a given company. Using the two agents at your disposal, answer the following question. Below are more details to help you complete your task:
