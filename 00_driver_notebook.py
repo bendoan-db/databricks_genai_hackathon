@@ -126,6 +126,12 @@ print(response.messages[0].content)
 
 # COMMAND ----------
 
+for e in AGENT.predict_stream(example_input):
+    print(e)
+    print("\n\n")
+
+# COMMAND ----------
+
 # MAGIC %md
 # MAGIC # Evaluate
 
