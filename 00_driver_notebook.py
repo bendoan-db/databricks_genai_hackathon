@@ -209,17 +209,20 @@ from mlflow.models.resources import (
 
 with mlflow.start_run():
     logged_chain_info = mlflow.pyfunc.log_model(
-        python_model=os.path.join(os.getcwd(), "01a_unstructured_retrieval_agent"),
-        model_config=os.path.join(os.getcwd(), "configs/agent.yaml"), 
+        python_model=os.path.join(os.getcwd(), "03_deep_research_agent"),
+        model_config=os.path.join(os.getcwd(), "configs/research_agent.yaml"), 
         name=model_name,  # Required by MLflow
-        code_paths=[os.path.join(os.getcwd(), "vector_search_utils")],
+        code_paths=[os.path.join(os.getcwd(), "vector_search_utils"), os.path.join(os.getcwd(), "supervisor_utils")],
         input_example=example_input,
         resources=[
         DatabricksVectorSearchIndex(index_name=f"{catalog}.{schema}.{vector_search_index}"),
         DatabricksServingEndpoint(endpoint_name=doc_agent_config["llm_config"]["llm_endpoint_name"]),
         DatabricksServingEndpoint(endpoint_name=genie_agent_config["llm_config"]["llm_endpoint_name"]),
         DatabricksServingEndpoint(endpoint_name=supervisor_config["llm_config"]["llm_endpoint_name"]),
-        DatabricksServingEndpoint(endpoint_name=embedding_model)
+        DatabricksServingEndpoint(endpoint_name=embedding_model),
+        DatabricksGenieSpace(genie_space_id=genie_agent_config["genie_space_id"]),
+        DatabricksTable(table_name=f"{catalog}.{schema}.genie_income_statement"),
+        DatabricksTable(table_name=f"{catalog}.{schema}.genie_balance_sheet")
         ],
         pip_requirements=["-r requirements.txt"],
     )
