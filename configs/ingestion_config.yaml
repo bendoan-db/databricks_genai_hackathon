@@ -1,7 +1,7 @@
 #global configs
 databricks_config:
   catalog: doan
-  schema: genai_hackathon
+  schema: finance_bench
   document_volume: 10k_pdfs
 
 #configs for metadata extraction steps
