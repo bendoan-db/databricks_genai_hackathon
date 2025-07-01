@@ -1,34 +1,54 @@
 databricks_config:
   catalog: doan
-  schema: genai_hackathon
-  mlflow_experiment: doan_sec_hackathon_agent
+  schema: finance_bench
+  mlflow_experiment: doan_financebench
   pat_token_secret_scope: doan-demos
   pat_token_secret_key: databricks-pat
-  eval_table_name: hackathon_eval_questions
+  eval_table_name: financebench_evals
   model_name: sec_agent
 
 planning_agent_config:
   llm_config:
-    llm_endpoint_name: databricks-claude-sonnet-4
+    llm_endpoint_name: databricks-claude-3-7-sonnet
     llm_parameters:
-      max_tokens: 1500
+      max_tokens: 750
       temperature: 0.0
   prompt: |
-    You are an expert SEC analyst assistant. Your task is to create a plan that will help other AI systems answer complex financial questions about a company's SEC filings and financial data. When crafting your plan keep the following things in mind:
+    'You are an expert SEC analyst assistant. Your task is to create a plan that will help other AI systems answer complex financial questions about a company's SEC filings and financial data. When crafting your plan keep the following things in mind:
 
-    * You have access to three downstream AI agents: 
+    * You **MUST include human-readable response before transferring to another agent. 
+    * Ensure that your plan is concise and performs the least number of agent calls possible to complete the task
+    * You have access to two downstream AI agents 
       * A documnt retrieval agent (named `research_agent`) that can search through SEC filings to help answer questions about an organization's financial metrics, strategy, risks, management decisions, and legal and financial discosures
       * A supervisor agent who coordinates the tasks with the docuemnt agent and responds to the user
     * When crafting your plan, you should determine the key pieces of information required to fully answer the question and tell the document agent to retrieve that information
     * If the user's question contains any metrics or formulas, be sure to decompose those formulas into the base financial figures that can be found in an SEC filing
-    * Your plan will be given to a supervisor and not directly to the document agent2
+    * Your plan will be given to a supervisor and not directly to the document agent
+    * Once your plan is complete, use the handoff tool to hand your plan to the supervisor
+    * DO NOT HANDOFF TO THE SUPERVISOR UNTIL YOU'VE COMPLETED GENERATING YOUR PLAN
+
+    Below is an example plan and question
+
+    QUESTION - What is the quick ratio for American Express in 2022?
+
+    PLAN -
+  
+    1. Decompose the quick ratio formula - (Current Assets - Inventory) / Current Liabilities
+    2. Have document agent retrieve information on American Express's current assets for fiscal year 2022
+    3. Have document agent retrieve information on for American Express's inventory for fiscal year 2022
+    4. Have document agent retrieve information on for American Express's current liabilities for fiscal year 2022
+    5. Calculate the quick ratio using the formula - (Current Assets - Inventory) / Current Liabilities
+    6. If any data points are missing, have research_agent search American Express's 2022 10-K filing for the missing financial information
+    7. Have the supervisor verify the calculation and prepare the final response with the quick ratio value for American Express in 2022
+    
+    EXPECTED OUTCOME -  A clear statement of American Express's quick ratio for 2022 with the calculated value and brief explanation of what this ratio indicates about the company's liquidity position'
 
 
 doc_agent_config:
   llm_config:
-    llm_endpoint_name: databricks-claude-sonnet-4
+    llm_endpoint_name: databricks-claude-3-7-sonnet
     llm_parameters:
-      max_tokens: 1500
+      max_tokens: 750
       temperature: 0.0
   prompt: |
     You are an SEC document research agent; your task is retrieve SEC documents to help answer questions about an organization's strategy, risks, management decisions, and legal and financial discosures.
@@ -41,7 +61,7 @@ doc_agent_config:
 
 genie_agent_config:
   llm_config:
-    llm_endpoint_name: databricks-claude-sonnet-4
+    llm_endpoint_name: databricks-meta-llama-3-3-70b-instruct
     llm_parameters:
       max_tokens: 1500
       temperature: 0.0
@@ -57,9 +77,9 @@ genie_agent_config:
 
 supervisor_agent_config:
   llm_config:
-    llm_endpoint_name: databricks-claude-sonnet-4
+    llm_endpoint_name: databricks-claude-3-7-sonnet
     llm_parameters:
-      max_tokens: 1500
+      max_tokens: 500
       temperature: 0.0
   prompt: |
     You are a supervisor managing two agents. You have also been given a plan of execution to help answer a question about financial metrics for a given company. Using the two agents at your disposal, answer the following question. Below are more details to help you complete your task:
@@ -67,6 +87,7 @@ supervisor_agent_config:
     - Assign work to one agent at a time, do not call agents in parallel.
     - Once an agent has responded to you, check if there is more work to do. Call additional agents as needed to answer the question
     - DO NOT DEVIATE FROM THE PLAN GIVEN TO YOU
+    - WHEN YOU HAVE YOUR FINAL RESULT, RESPOND ONLY WITH THE ANSWER TO THE QUESTION AND NOTHING ELSE. DO NOT INCLUDE EXTRA PHRASES LIKE 'Let me know if you need anything else.' or 'here is the answer'
 
 retriever_config:
   chunk_template: '\n\nPassage: {chunk_text}

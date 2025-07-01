@@ -25,7 +25,7 @@ os.environ['DATABRICKS_URL'] = get_context().apiUrl
 
 import yaml
 
-with open('./configs/agent.yaml', 'r') as file:
+with open('./configs/research_agent.yaml', 'r') as file:
     config = yaml.safe_load(file)
 
 #load global configs
@@ -82,7 +82,7 @@ example_input = {
         "messages": [
             {
                 "role": "user",
-                "content": "How did APPL's operating margin change between 2020 and 2021? What factors contributed to this?",
+                "content": "What was AMCOR's total liabilities in 2022?",
             }
         ]
     }
@@ -99,7 +99,11 @@ print(response.messages[0].content)
 
 # COMMAND ----------
 
-eval_dataset = spark.table(f"{catalog}.{schema}.{eval_table}")
+eval_dataset = spark.table(f"{catalog}.{schema}.{eval_table}").limit(50)
+
+# COMMAND ----------
+
+eval_dataset.count()
 
 # COMMAND ----------
 
@@ -147,7 +151,7 @@ eval_results = mlflow.genai.evaluate(
         RelevanceToQuery(),
         Safety(),
         figure_correctness,
-        Guidelines(name="structure", guidelines=structure),
+        #Guidelines(name="structure", guidelines=structure),
     ],
 )
 

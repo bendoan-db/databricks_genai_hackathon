@@ -97,3 +97,11 @@ spark.sql(f"ALTER TABLE {catalog}.{schema}.{gold_chunk_table_name} SET TBLPROPER
 
 gold_table = spark.table(f"{catalog}.{schema}.{gold_chunk_table_name}")
 display(gold_table)
+
+# COMMAND ----------
+
+# MAGIC %run ./06_create_vs_index
+
+# COMMAND ----------
+
+
