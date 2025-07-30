@@ -14,7 +14,7 @@
 
 import yaml
 
-with open('./configs/agent.yaml', 'r') as file:
+with open('./configs/research_agent.yaml', 'r') as file:
     config = yaml.safe_load(file)
 
 #load global configs
